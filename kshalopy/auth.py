@@ -8,10 +8,6 @@ from typing import Tuple
 from .constants import COGNITO_g_HEX, COGNITO_N_HEX, INFO_BITS
 
 
-class ForceChangePasswordException(Exception):
-    """Raised when the user is forced to change their password"""
-
-
 class SRPFactor:
     def __init__(self, int_value: int = 0, hex_value: str = "0"):
         if int_value:
