@@ -11,7 +11,7 @@ from .constants import COGNITO_g_HEX, COGNITO_N_HEX, INFO_BITS
 
 
 class SRPFactor:
-    def __init__(self, int_value: int = 0, hex_value: str = "0"):
+    def __init__(self, int_value: int = 0, hex_value: str = "0") -> None:
         if int_value:
             self.int = int_value
             self.hex = "%x" % self.int
@@ -20,6 +20,18 @@ class SRPFactor:
             self.int = int(self.hex, 16)
         self.padded_hex = self.pad_hex(self.hex)
         self.bytes = bytes.fromhex(self.padded_hex)
+
+    def __add__(self, other: SRPFactor) -> SRPFactor:
+        return SRPFactor(int_value=self.int + other.int)
+
+    def __sub__(self, other: SRPFactor) -> SRPFactor:
+        return SRPFactor(int_value=self.int - other.int)
+
+    def __mul__(self, other: SRPFactor) -> SRPFactor:
+        return SRPFactor(int_value=self.int * other.int)
+
+    def __repr__(self) -> int:
+        return self.int
 
     @staticmethod
     def concat_and_hash(a: str, b: str) -> SRPFactor:
@@ -73,7 +85,9 @@ class AWSSRP:
         self.client_secret = client_secret
         self.big_n = SRPFactor(hex_value=COGNITO_N_HEX)
         self.val_g = SRPFactor(hex_value=COGNITO_g_HEX)
-        self.val_k = SRPFactor.concat_and_hash(self.big_n.padded_hex, self.val_g.padded_hex)
+        self.val_k = SRPFactor.concat_and_hash(
+            self.big_n.padded_hex, self.val_g.padded_hex
+        )
         self.small_a_value, self.large_a_value = self.calculate_a_values()
 
     @staticmethod
@@ -97,12 +111,10 @@ class AWSSRP:
         x_value = SRPFactor.concat_and_hash(salt.padded_hex, username_password_hash)
         g_mod_pow_xn = pow(self.val_g.int, x_value.int, self.big_n.int)
         base = srp_b.int - self.val_k.int * g_mod_pow_xn
-        s_value = SRPFactor(
-            int_value=pow(
-                base, self.small_a_value.int + u_value.int * x_value.int, self.big_n.int
-            )
+        s_value = pow(
+            base, (self.small_a_value + u_value * x_value).int, self.big_n.int
         )
-        hkdf = compute_hkdf(u_value, s_value)
+        hkdf = compute_hkdf(u_value, SRPFactor(int_value=s_value))
         return hkdf
 
     def get_auth_params(self) -> dict:
