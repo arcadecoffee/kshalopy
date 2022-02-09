@@ -1,13 +1,19 @@
 from __future__ import annotations
 
-import base64
-import datetime
-import hashlib
 import hmac
-import os
-from typing import Tuple
 
-from .constants import COGNITO_g_HEX, COGNITO_N_HEX, INFO_BITS
+from base64 import b64decode, b64encode
+from datetime import datetime
+from os import urandom
+from sys import byteorder
+from typing import Tuple, Dict
+
+from .config import (
+    COGNITO_HASH_ALGO,
+    COGNITO_AUTH_g,
+    COGNITO_AUTH_N,
+    COGNITO_INFO_BITS,
+)
 
 
 class SRPFactor:
@@ -35,7 +41,8 @@ class SRPFactor:
 
     @staticmethod
     def concat_and_hash(a: str, b: str) -> SRPFactor:
-        return SRPFactor(hex_value=hex_hash(a + b))
+        r = hash_hex(bytearray.fromhex(a + b))
+        return SRPFactor(hex_value=r)
 
     @staticmethod
     def pad_hex(value: str) -> str:
@@ -46,27 +53,28 @@ class SRPFactor:
         return value
 
 
-def hash_sha256(data: bytes) -> str:
-    return hashlib.sha256(data).hexdigest()
-
-
-def hex_hash(hex_string: str) -> str:
-    return hash_sha256(bytearray.fromhex(hex_string))
+def hash_hex(data: bytes) -> str:
+    return COGNITO_HASH_ALGO(data).hexdigest()
 
 
 def compute_hkdf(key_value: SRPFactor, msg_value: SRPFactor) -> bytes:
-    prk = hmac.new(key_value.bytes, msg_value.bytes, hashlib.sha256).digest()
-    hmac_hash = hmac.new(prk, INFO_BITS, hashlib.sha256).digest()
+    prk = hmac.new(key_value.bytes, msg_value.bytes, COGNITO_HASH_ALGO).digest()
+    hmac_hash = hmac.new(prk, COGNITO_INFO_BITS, COGNITO_HASH_ALGO).digest()
     return hmac_hash[:16]
 
 
-def calculate_u(big_a: SRPFactor, big_b: SRPFactor) -> SRPFactor:
-    return SRPFactor.concat_and_hash(big_a.padded_hex, big_b.padded_hex)
-
-
-class AWSSRP:
-    NEW_PASSWORD_REQUIRED_CHALLENGE = "NEW_PASSWORD_REQUIRED"
+class SRPHelper:
     PASSWORD_VERIFIER_CHALLENGE = "PASSWORD_VERIFIER"
+
+    @staticmethod
+    def generate_random_small_a() -> SRPFactor:
+        return SRPFactor(int_value=int.from_bytes(urandom(128), byteorder))
+
+    @staticmethod
+    def get_secret_hash(username: str, client_id: str, client_secret: str) -> str:
+        message = (username + client_id).encode()
+        hmac_obj = hmac.new(client_secret.encode(), message, COGNITO_HASH_ALGO)
+        return b64encode(hmac_obj.digest()).decode()
 
     def __init__(
         self,
@@ -77,84 +85,70 @@ class AWSSRP:
         device_key,
         client_secret=None,
     ):
-        self.username = username
-        self.password = password
-        self.pool_id = user_pool_id.split("_")[1]
-        self.client_id = client_id
-        self.device_key = device_key
-        self.client_secret = client_secret
-        self.big_n = SRPFactor(hex_value=COGNITO_N_HEX)
-        self.val_g = SRPFactor(hex_value=COGNITO_g_HEX)
-        self.val_k = SRPFactor.concat_and_hash(
-            self.big_n.padded_hex, self.val_g.padded_hex
-        )
-        self.small_a_value, self.large_a_value = self.calculate_a_values()
+        self._username = username
+        self._password = password
+        self._pool_id = user_pool_id.split("_")[1]
+        self._client_id = client_id
+        self._device_key = device_key
+        self._client_secret = client_secret
+        self._N = SRPFactor(hex_value=COGNITO_AUTH_N)
+        self._g = SRPFactor(hex_value=COGNITO_AUTH_g)
+        self._k = SRPFactor.concat_and_hash(self._N.padded_hex, self._g.padded_hex)
+        self._small_a, self._large_a = self._calculate_a_values()
 
-    @staticmethod
-    def generate_random_small_a() -> SRPFactor:
-        return SRPFactor(int_value=int.from_bytes(os.urandom(128), "big"))
+        self._auth_parameters = {
+            "CHALLENGE_NAME": "SRP_A",
+            "DEVICE_KEY": self._device_key,
+            "USERNAME": self._username,
+            "SRP_A": self._large_a.hex,
+        }
+        if self._client_secret is not None:
+            self._auth_parameters["SECRET_HASH"] = self.get_secret_hash(
+                self._username, self._client_id, self._client_secret
+            )
 
-    def calculate_a_values(self) -> Tuple[SRPFactor, SRPFactor]:
-        big_a = small_a = 0
-        while big_a % self.big_n.int == 0:
+    @property
+    def auth_parameters(self) -> Dict[str, str]:
+        return self._auth_parameters.copy()
+
+    def _calculate_a_values(self) -> Tuple[SRPFactor, SRPFactor]:
+        large_a = small_a = 0
+        while large_a % self._N.int == 0:
             small_a = self.generate_random_small_a()
-            big_a = pow(self.val_g.int, small_a.int, self.big_n.int)
-        return small_a, SRPFactor(int_value=big_a)
+            large_a = pow(self._g.int, small_a.int, self._N.int)
+        return small_a, SRPFactor(int_value=large_a)
 
-    def get_password_authentication_key(
+    def _get_password_authentication_key(
         self, user_id: str, password: str, srp_b: SRPFactor, salt: SRPFactor
     ) -> bytes:
-        u_value = calculate_u(self.large_a_value, srp_b)
-        username_password_hash = hash_sha256(
-            f"{self.pool_id}{user_id}:{password}".encode()
-        )
-        x_value = SRPFactor.concat_and_hash(salt.padded_hex, username_password_hash)
-        g_mod_pow_xn = pow(self.val_g.int, x_value.int, self.big_n.int)
-        base = srp_b.int - self.val_k.int * g_mod_pow_xn
-        s_value = pow(
-            base, (self.small_a_value + u_value * x_value).int, self.big_n.int
-        )
-        hkdf = compute_hkdf(u_value, SRPFactor(int_value=s_value))
+        u = SRPFactor.concat_and_hash(self._large_a.padded_hex, srp_b.padded_hex)
+        id_hash = hash_hex(f"{self._pool_id}{user_id}:{password}".encode())
+        x = SRPFactor.concat_and_hash(salt.padded_hex, id_hash)
+        base = srp_b.int - self._k.int * pow(self._g.int, x.int, self._N.int)
+        exponent = (self._small_a + u * x).int
+        s = pow(base, exponent, self._N.int)
+        hkdf = compute_hkdf(u, SRPFactor(int_value=s))
         return hkdf
 
-    def get_auth_params(self) -> dict:
-        auth_params = {
-            "CHALLENGE_NAME": "SRP_A",
-            "DEVICE_KEY": self.device_key,
-            "USERNAME": self.username,
-            "SRP_A": self.large_a_value.hex,
-        }
-        if self.client_secret is not None:
-            auth_params["SECRET_HASH"] = self.get_secret_hash(
-                self.username, self.client_id, self.client_secret
-            )
-        return auth_params
-
-    @staticmethod
-    def get_secret_hash(username: str, client_id: str, client_secret: str) -> str:
-        message = (username + client_id).encode()
-        hmac_obj = hmac.new(client_secret.encode(), message, hashlib.sha256)
-        return base64.b64encode(hmac_obj.digest()).decode()
-
-    def process_challenge(self, challenge_parameters):
+    def process_challenge(self, challenge_parameters) -> Dict[str, str]:
         internal_username = challenge_parameters["USERNAME"]
         user_id_for_srp = challenge_parameters["USER_ID_FOR_SRP"]
         salt = SRPFactor(hex_value=challenge_parameters["SALT"])
         srp_b = SRPFactor(hex_value=challenge_parameters["SRP_B"])
         secret_block = challenge_parameters["SECRET_BLOCK"]
-        timestamp = datetime.datetime.utcnow().strftime("%a %b %-d %H:%M:%S UTC %Y")
+        timestamp = datetime.utcnow().strftime("%a %b %-d %H:%M:%S UTC %Y")
 
-        hkdf = self.get_password_authentication_key(
-            user_id_for_srp, self.password, srp_b, salt
+        hkdf = self._get_password_authentication_key(
+            user_id_for_srp, self._password, srp_b, salt
         )
         msg = (
-            self.pool_id.encode()
+            self._pool_id.encode()
             + user_id_for_srp.encode()
-            + base64.b64decode(secret_block)
+            + b64decode(secret_block)
             + timestamp.encode()
         )
-        hmac_obj = hmac.new(hkdf, msg, hashlib.sha256)
-        signature_string = base64.b64encode(hmac_obj.digest()).decode()
+        hmac_obj = hmac.new(hkdf, msg, COGNITO_HASH_ALGO)
+        signature_string = b64encode(hmac_obj.digest()).decode()
 
         response = {
             "TIMESTAMP": timestamp,
@@ -162,9 +156,8 @@ class AWSSRP:
             "PASSWORD_CLAIM_SECRET_BLOCK": secret_block,
             "PASSWORD_CLAIM_SIGNATURE": signature_string,
         }
-        if self.client_secret is not None:
+        if self._client_secret is not None:
             response["SECRET_HASH"] = self.get_secret_hash(
-                internal_username, self.client_id, self.client_secret
+                internal_username, self._client_id, self._client_secret
             )
-
         return response

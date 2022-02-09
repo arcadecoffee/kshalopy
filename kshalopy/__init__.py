@@ -1,1 +1,1 @@
-from .auth import AWSSRP
+from .auth import SRPHelper
