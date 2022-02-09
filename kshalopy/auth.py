@@ -13,16 +13,15 @@ class ForceChangePasswordException(Exception):
 
 
 class SRPFactor:
-    def __init__(self, int_value: int = None, hex_value: str = None):
-        self.int = 0
-        self.hex = "0"
+    def __init__(self, int_value: int = 0, hex_value: str = "0"):
         if int_value:
             self.int = int_value
             self.hex = "%x" % self.int
-        elif hex_value:
+        else:
             self.hex = hex_value
             self.int = int(self.hex, 16)
         self.padded_hex = self.pad_hex(self.hex)
+        self.bytes = bytes.fromhex(self.padded_hex)
 
     @staticmethod
     def pad_hex(value: str) -> str:
@@ -41,14 +40,8 @@ def hex_hash(hex_string: str) -> str:
     return hash_sha256(bytearray.fromhex(hex_string))
 
 
-def int_to_bytes(value: SRPFactor) -> bytes:
-    return bytes.fromhex(value.padded_hex)
-
-
 def compute_hkdf(key_value: SRPFactor, msg_value: SRPFactor) -> bytes:
-    prk = hmac.new(
-        int_to_bytes(key_value), int_to_bytes(msg_value), hashlib.sha256
-    ).digest()
+    prk = hmac.new(key_value.bytes, msg_value.bytes, hashlib.sha256).digest()
     hmac_hash = hmac.new(prk, INFO_BITS, hashlib.sha256).digest()
     return hmac_hash[:16]
 
