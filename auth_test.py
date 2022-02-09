@@ -8,10 +8,11 @@ username = '******REMOVED******'
 password = '******REMOVED******'
 
 client = boto3.client('cognito-idp', region_name='us-east-1')
-a = AWSSRP(username=username, password=password, user_pool_id=user_pool_id, client_id=client_id)
+a = AWSSRP(username=username, password=password, user_pool_id=user_pool_id,
+           client_id=client_id, device_key='foo')
 
 auth_params = a.get_auth_params()
-auth_params.update({'DEVICE_KEY': 'foo', 'CHALLENGE_NAME': 'SRP_A'})
+#auth_params.update({'DEVICE_KEY': 'foo', 'CHALLENGE_NAME': 'SRP_A'})
 
 response_1 = client.initiate_auth(
     AuthFlow='CUSTOM_AUTH',
