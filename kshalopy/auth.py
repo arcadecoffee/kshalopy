@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import base64
 import datetime
 import hashlib
@@ -18,6 +20,10 @@ class SRPFactor:
             self.int = int(self.hex, 16)
         self.padded_hex = self.pad_hex(self.hex)
         self.bytes = bytes.fromhex(self.padded_hex)
+
+    @staticmethod
+    def concat_and_hash(a: str, b: str) -> SRPFactor:
+        return SRPFactor(hex_value=hex_hash(a + b))
 
     @staticmethod
     def pad_hex(value: str) -> str:
@@ -43,8 +49,7 @@ def compute_hkdf(key_value: SRPFactor, msg_value: SRPFactor) -> bytes:
 
 
 def calculate_u(big_a: SRPFactor, big_b: SRPFactor) -> SRPFactor:
-    u_hex_hash = hex_hash(big_a.padded_hex + big_b.padded_hex)
-    return SRPFactor(hex_value=u_hex_hash)
+    return SRPFactor.concat_and_hash(big_a.padded_hex, big_b.padded_hex)
 
 
 class AWSSRP:
@@ -68,9 +73,7 @@ class AWSSRP:
         self.client_secret = client_secret
         self.big_n = SRPFactor(hex_value=COGNITO_N_HEX)
         self.val_g = SRPFactor(hex_value=COGNITO_g_HEX)
-        self.val_k = SRPFactor(
-            hex_value=hex_hash(self.big_n.padded_hex + self.val_g.padded_hex)
-        )
+        self.val_k = SRPFactor.concat_and_hash(self.big_n.padded_hex, self.val_g.padded_hex)
         self.small_a_value, self.large_a_value = self.calculate_a_values()
 
     @staticmethod
@@ -91,9 +94,7 @@ class AWSSRP:
         username_password_hash = hash_sha256(
             f"{self.pool_id}{user_id}:{password}".encode()
         )
-        x_value = SRPFactor(
-            hex_value=hex_hash(salt.padded_hex + username_password_hash)
-        )
+        x_value = SRPFactor.concat_and_hash(salt.padded_hex, username_password_hash)
         g_mod_pow_xn = pow(self.val_g.int, x_value.int, self.big_n.int)
         base = srp_b.int - self.val_k.int * g_mod_pow_xn
         s_value = SRPFactor(
