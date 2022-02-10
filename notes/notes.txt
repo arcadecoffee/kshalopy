@@ -1,0 +1,140 @@
+Log location:
+/Users/jerry/Library/Containers/23BA059B-A8EC-4397-866A-0923CFC87988/Data/Documents/logs
+a.k.a.
+/Users/jerry/Library/Containers/Kwikset/Data/Documents/logs
+
+
+Cognito Token expires after 60 minutes
+
+
+Device Status:
+curl \
+ -H "x-app-ver:1.2.11" \
+ -H "Authorization:Bearer $idToken" \
+ -H "x-ios-name:iPad8,6" \
+ -H "Content-Type:application/json" \
+ -H "x-ios-ver:15.2" \
+ -X GET "https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/devices_v2/10ed83f37baa3f44c4"
+
+
+ Lock:
+ curl \
+ -H "x-app-ver:1.2.11" \
+ -H "Authorization:Bearer $idToken" \
+ -H "x-ios-name:iPad8,6" \
+ -H "Content-Type:application/json" \
+ -H "x-ios-ver:15.2" \
+ -d '{"action":"Lock","source":"{\n  \"name\" : \"JerryGriPad   \",\n  \"device\" : \"iPad\"\n}"}' \
+ -X PATCH "https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/devices/10ed83f37baa3f44c4/status"
+
+Unlock:
+curl \
+ -H "x-app-ver:1.2.11" \
+ -H "Authorization:Bearer $idToken" \
+ -H "x-ios-name:iPad8,6" \
+ -H "Content-Type:application/json" \
+ -H "x-ios-ver:15.2" \
+ -d '{"action":"Unlock","source":"{\n  \"name\" : \"JerryGriPad   \",\n  \"device\" : \"iPad\"\n}"}' \
+ -X PATCH "https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/devices/10ed83f37baa3f44c4/status"
+
+
+
+## from /Applications/Kwikset.app/Wrapper/Spectrum.app/spectrum.environments.json
+{
+    "Prod":
+    {
+        "host":"ynk95r1v52.execute-api.us-east-1.amazonaws.com",
+        "port":443,
+        "useSSL":true,
+        "webapp":"prod",
+        "userpoolid":"us-east-1_6B3uo6uKN",
+        "userappclientid":"5eu1cdkjp1itd1fi7b91m6g79s",
+        "identitypoolid":"us-east-1:3e3c1b84-4a85-4ad1-8785-1ba943b85075",
+        "identityappclientsecret":"",
+        "pinpointAppName":"hhi-prod-pinpoint",
+        "pinpointAppId":"983d13e8ade444269c968f6f7359c0fc"
+    }
+}
+
+## cat awsconfiguration.json
+{
+    "UserAgent": "aws-amplify-cli/0.1.0",
+    "Version": "1.0",
+    "IdentityManager": {
+        "Default": {}
+    },
+    "AppSync": {
+        "Default": {
+            "ApiUrl": "https://mnlxsdywfvhoxh627qfakupckm.appsync-api.us-east-1.amazonaws.com/graphql",
+            "Region": "us-east-1",
+            "AuthMode": "AMAZON_COGNITO_USER_POOLS",
+            "ClientDatabasePrefix": "hhi-int-appsync_AMAZON_COGNITO_USER_POOLS"
+        },
+    }
+}
+
+
+token = "REFRESH TOKEN FROM KEYCHAIN"
+refresh_token = <REFRESH TOKEN FROM KEYCHAIN>
+client = boto3.client("cognito-idp", region_name="us-east-1")
+response = client.initiate_auth(ClientId="5eu1cdkjp1itd1fi7b91m6g79s", AuthFlow="REFRESH_TOKEN", AuthParameters={"CURRENT_USER": "******REMOVED******", "REFRESH_TOKEN": token})
+
+
+
+AUTH TEST:
+
+import srp
+import boto3
+cognito = boto3.client('cognito-idp', region_name='us-east-1')
+username = '******REMOVED******'
+password = <password>
+user_pool_id = 'us-east-1_6B3uo6uKN'
+client_id = '5eu1cdkjp1itd1fi7b91m6g79s'
+srp_user = srp.User(username, password)
+_, srp_a_bytes = srp_user.start_authentication()
+srp_a_hex = srp_a_bytes.hex()
+
+response = cognito.initiate_auth(AuthFlow='CUSTOM_AUTH', ClientId=client_id, AuthParameters={'USERNAME': username, 'DEVICE_KEY': 'foofoo', 'CHALLENGE_NAME': 'SRP_A', 'SRP_A': srp_a_hex})
+
+
+
+MAPPING API ENDPOINTS:
+Logged in user info:  https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/users/me/
+Homes attached to user: https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/users/me/homes
+Devices in home: https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/homes/1ef5bab5-8041-4d16-8de1-f4aba4cb87f9/devices
+Users in home: https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/homes/1ef5bab5-8041-4d16-8de1-f4aba4cb87f9/sharedusers
+Device status: https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/devices/10ed83f37baa3f44c4
+
+Lock / Unlock:
+     -d '{"action":"Lock","source":"{\n  \"name\" : \"JerryGriPad   \",\n  \"device\" : \"iPad\"\n}"}' \
+     -X PATCH "https://ynk95r1v52.execute-api.us-east-1.amazonaws.com:443/prod_v1/devices/10ed83f37baa3f44c4/status"
+
+
+
+Login Flow:
+userName = '******REMOVED******'
+clientId = client_id from spectrum.environments.json
+
+# Get AccessToken and IdToken
+aws cognito-idp initiate-auth --region us-east-1 --client-id $clientId --auth-flow REFRESH_TOKEN --auth-parameters CURRENT_USER=$userName,REFRESH_TOKEN=$refreshToken
+
+# Get identityId -- THIS MAY BE UNNECCESARY
+aws cognito-identity get-id --region us-east-1 --identity-pool-id us-east-1:3e3c1b84-4a85-4ad1-8785-1ba943b85075 --logins cognito-idp.us-east-1.amazonaws.com/us-east-1_6B3uo6uKN=$idToken
+
+# Get AccessKeyId, SecretKey, and SessionToken -- THIS MAY BE UNNECCESARY
+aws cognito-identity get-credentials-for-identity --region us-east-1 --identity-id $identityID --logins cognito-idp.us-east-1.amazonaws.com/us-east-1_6B3uo6uKN=$idToken
+
+# Global sign-out
+aws cognito-idp global-sign-out --region us-east-1  --access-token $token
+
+Realtime Client Implementation
+https://docs.aws.amazon.com/appsync/latest/devguide/aws-appsync-real-time-data.html
+
+
+
+
+# GQL Query -- DEAD END SO FAR
+cat q.gql | gql-cli https://mnlxsdywfvhoxh627qfakupckm.appsync-api.us-east-1.amazonaws.com/graphql -H "Authorization: $identityId"
+
+# Dump Schema
+gql-cli https://mnlxsdywfvhoxh627qfakupckm.appsync-api.us-east-1.amazonaws.com/graphql -H "Authorization: $identityId" --print-schema
