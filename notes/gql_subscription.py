@@ -10,6 +10,8 @@ import threading
 
 import json
 
+username = input("Username: ")
+
 # Constants Copied from AppSync API 'Settings'
 API_URL = "https://mnlxsdywfvhoxh627qfakupckm.appsync-api.us-east-1.amazonaws.com/graphql"
 
@@ -18,7 +20,7 @@ API_KEY = input('ID Token: ')
 
 # GraphQL subscription Registration object
 GQL_SUBSCRIPTION = json.dumps({
-    'query': 'subscription onManageDevice { onManageDevice(email: "***REMOVED***") { deviceid devicename devicestatus operationtype} }',
+    'query': 'subscription onManageDevice { onManageDevice(email: ' + username + ') { deviceid devicename devicestatus operationtype} }',
     'variables': {}
 })
 
