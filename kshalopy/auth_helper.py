@@ -18,7 +18,7 @@ class VerificationMethod(Enum):
     EMAIL = 'email'
     PHONE = 'phone'
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.value
 
 
@@ -59,7 +59,7 @@ class AuthHelper:
             "USERNAME": self._username,
             "SRP_A": self._large_a.hex,
         }
-        if self._client_secret is not None:
+        if self._client_secret:
             self._auth_parameters["SECRET_HASH"] = self.get_secret_hash(
                 self._username, self._client_id, self._client_secret
             )
@@ -113,7 +113,7 @@ class AuthHelper:
             "PASSWORD_CLAIM_SECRET_BLOCK": secret_block,
             "PASSWORD_CLAIM_SIGNATURE": signature_string,
         }
-        if self._client_secret is not None:
+        if self._client_secret:
             response["SECRET_HASH"] = self.get_secret_hash(
                 internal_username, self._client_id, self._client_secret
             )
