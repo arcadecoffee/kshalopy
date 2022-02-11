@@ -1,17 +1,17 @@
 import pprint
 import boto3
-from kshalopy import SRPHelper
+from kshalopy import AuthHelper
 
 user_pool_id = "us-east-1_6B3uo6uKN"
 client_id = "5eu1cdkjp1itd1fi7b91m6g79s"
-username = "******REMOVED******"
-password = "******REMOVED******"
+username = input("Username: ")
+password = input("Password: ")
 
 client = boto3.client("cognito-idp", region_name="us-east-1")
-a = SRPHelper(
+a = AuthHelper(
     username=username,
     password=password,
-    user_pool_id=user_pool_id,
+    pool_id=user_pool_id.split('_')[1],
     client_id=client_id,
     device_key="foo",
 )

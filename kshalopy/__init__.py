@@ -1,1 +1,1 @@
-from .auth import SRPHelper
+from .auth_helper import AuthHelper

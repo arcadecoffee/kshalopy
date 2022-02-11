@@ -18,7 +18,7 @@ API_KEY = input('ID Token: ')
 
 # GraphQL subscription Registration object
 GQL_SUBSCRIPTION = json.dumps({
-    'query': 'subscription onManageDevice { onManageDevice(email: "******REMOVED******") { deviceid devicename devicestatus operationtype} }',
+    'query': 'subscription onManageDevice { onManageDevice(email: "***REMOVED***") { deviceid devicename devicestatus operationtype} }',
     'variables': {}
 })
 

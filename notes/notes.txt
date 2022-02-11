@@ -77,7 +77,7 @@ curl \
 token = "REFRESH TOKEN FROM KEYCHAIN"
 refresh_token = <REFRESH TOKEN FROM KEYCHAIN>
 client = boto3.client("cognito-idp", region_name="us-east-1")
-response = client.initiate_auth(ClientId="5eu1cdkjp1itd1fi7b91m6g79s", AuthFlow="REFRESH_TOKEN", AuthParameters={"CURRENT_USER": "******REMOVED******", "REFRESH_TOKEN": token})
+response = client.initiate_auth(ClientId="5eu1cdkjp1itd1fi7b91m6g79s", AuthFlow="REFRESH_TOKEN", AuthParameters={"CURRENT_USER": "***REMOVED***", "REFRESH_TOKEN": token})
 
 
 
@@ -86,7 +86,7 @@ AUTH TEST:
 import srp
 import boto3
 cognito = boto3.client('cognito-idp', region_name='us-east-1')
-username = '******REMOVED******'
+username = '***REMOVED***'
 password = <password>
 user_pool_id = 'us-east-1_6B3uo6uKN'
 client_id = '5eu1cdkjp1itd1fi7b91m6g79s'
@@ -112,7 +112,7 @@ Lock / Unlock:
 
 
 Login Flow:
-userName = '******REMOVED******'
+userName = '***REMOVED***'
 clientId = client_id from spectrum.environments.json
 
 # Get AccessToken and IdToken
