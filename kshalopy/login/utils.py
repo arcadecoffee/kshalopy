@@ -1,6 +1,8 @@
 import hmac
 
-from .config import COGNITO_HASH_ALGO, COGNITO_INFO_BITS
+from datetime import datetime
+
+from .config import COGNITO_HASH_ALGO, COGNITO_INFO_BITS, DATETIME_FORMAT
 from .factor import Factor
 
 
@@ -17,3 +19,7 @@ def concat_and_hash(a: str, b: str) -> Factor:
 
 def hash_hex(data: bytes) -> str:
     return COGNITO_HASH_ALGO(data).hexdigest()
+
+
+def date_string_to_timestamp(dt: str) -> float:
+    return datetime.strptime(dt, '%a, %d %b %Y %H:%M:%S %Z').timestamp()

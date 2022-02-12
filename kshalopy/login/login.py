@@ -3,11 +3,12 @@ from enum import Enum
 import boto3
 
 from .helper import LoginHelper
+from .utils import date_string_to_timestamp
 
 
 class VerificationMethod(Enum):
-    EMAIL = 'email'
-    PHONE = 'phone'
+    EMAIL = "email"
+    PHONE = "phone"
 
     def __str__(self) -> str:
         return self.value
@@ -33,7 +34,7 @@ class LoginHandler:
         self.region, self.pool_id = user_pool_id.split("_")
 
         self.cognito_client = boto3.client("cognito-idp", region_name=self.region)
-        self.tokens = {}
+        self.tokens = None
         self.last_session = None
 
     def start_login(self):
@@ -93,4 +94,17 @@ class LoginHandler:
             Session=self.last_session,
         )
 
-        self.tokens = response["AuthenticationResult"]
+        expiration = (
+            date_string_to_timestamp(
+                response["ResponseMetadata"]["HTTPHeaders"]["date"]
+            )
+            + response["AuthenticationResult"]["ExpiresIn"]
+        )
+
+        self.tokens = {
+            "AccessToken": response["AuthenticationResult"]["AccessToken"],
+            "IdToken": response["AuthenticationResult"]["IdToken"],
+            "RefreshToken": response["AuthenticationResult"]["RefreshToken"],
+            "TokenType": response["AuthenticationResult"]["TokenType"],
+            "ExpirationUTC": expiration,
+        }
