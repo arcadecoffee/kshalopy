@@ -1,11 +1,19 @@
-from enum import Enum, auto
+from enum import Enum
 
 import boto3
 
-from .auth_helper import AuthHelper, VerificationMethod
+from .helper import LoginHelper
 
 
-class AuthInitiator:
+class VerificationMethod(Enum):
+    EMAIL = 'email'
+    PHONE = 'phone'
+
+    def __str__(self) -> str:
+        return self.value
+
+
+class LoginHandler:
     def __init__(
         self,
         username: str,
@@ -29,7 +37,7 @@ class AuthInitiator:
         self.last_session = None
 
     def start_login(self):
-        auth_helper = AuthHelper(
+        auth_helper = LoginHelper(
             username=self.username,
             password=self.password,
             pool_id=self.pool_id,

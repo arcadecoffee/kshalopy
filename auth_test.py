@@ -1,6 +1,6 @@
 from pprint import pprint
 
-from kshalopy import AuthInitiator, VerificationMethod
+from kshalopy.login import LoginHandler, VerificationMethod
 
 ## from /Applications/Kwikset.app/Wrapper/Spectrum.app/spectrum.environments.json
 config = {
@@ -19,7 +19,7 @@ config = {
 username = input("Username: ")
 password = input("Password: ")
 
-authenticator = AuthInitiator(
+authenticator = LoginHandler(
     username=username,
     password=password,
     user_pool_id=config["userpoolid"],

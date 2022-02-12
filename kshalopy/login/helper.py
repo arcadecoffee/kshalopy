@@ -4,7 +4,6 @@ import hmac
 
 from base64 import b64decode, b64encode
 from datetime import datetime
-from enum import Enum
 from os import urandom
 from sys import byteorder
 from typing import Tuple, Dict
@@ -14,15 +13,7 @@ from .factor import Factor
 from .utils import concat_and_hash, compute_hkdf, hash_hex
 
 
-class VerificationMethod(Enum):
-    EMAIL = 'email'
-    PHONE = 'phone'
-
-    def __str__(self) -> str:
-        return self.value
-
-
-class AuthHelper:
+class LoginHelper:
     @staticmethod
     def generate_random_small_a() -> Factor:
         return Factor(int_value=int.from_bytes(urandom(128), byteorder))
