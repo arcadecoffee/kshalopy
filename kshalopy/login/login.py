@@ -10,8 +10,9 @@ import boto3
 
 from ..config import Config
 from ..credentials import Credentials
+from ..utils import calculate_expiration
+
 from .helper import LoginHelper
-from .utils import calculate_expiration
 
 
 @dataclass

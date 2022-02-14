@@ -14,7 +14,7 @@ from datetime import datetime
 
 import boto3
 
-from ..login.utils import calculate_expiration
+from ..utils import calculate_expiration
 
 
 class Credentials:
