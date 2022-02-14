@@ -2,27 +2,33 @@
 Test harness for logins
 """
 
-from pprint import pprint
+import os
 
-from kshalopy import Config
+from kshalopy import Config, Credentials
 from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
 
-config = Config.load_defaults()
+CREDENTIALS_FILE = 'credentials.secret.json'
 
-login_params = LoginParameters(
-    username=input("Username: "),
-    password=input("Password: "),
-    verification_method=VerificationMethods.EMAIL,
-    device_key="foo42"
-)
+if os.path.exists(CREDENTIALS_FILE):
+    credentials = Credentials.load_credentials(CREDENTIALS_FILE)
+else:
+    config = Config.load_defaults()
 
-authenticator = LoginHandler(
-    login_params=login_params,
-    app_config=config
-)
-authenticator.start_login()
+    login_params = LoginParameters(
+        username=input("Username: "),
+        password=input("Password: "),
+        verification_method=VerificationMethods.EMAIL,
+        device_key="foo42"
+    )
 
-verification_code = input("Verification Code: ")
-authenticator.submit_verification_code(verification_code)
+    authenticator = LoginHandler(
+        login_params=login_params,
+        app_config=config
+    )
+    authenticator.start_login()
 
-pprint(authenticator.credentials)
+    verification_code = input("Verification Code: ")
+    authenticator.submit_verification_code(verification_code)
+
+    credentials = authenticator.credentials
+    credentials.save_credentials(CREDENTIALS_FILE)
