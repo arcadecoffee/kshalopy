@@ -2,8 +2,8 @@
 kshalopy.credentials.credentials
 """
 
-# pylint: disable=R0913
-# too-many-arguments
+# pylint: disable=R0902, R0913
+# too-many-instance-attributes, too-many-arguments
 # The credential set is as long as it wants to be and no longer
 
 from __future__ import annotations
@@ -11,6 +11,10 @@ from __future__ import annotations
 import json
 
 from datetime import datetime
+
+import boto3
+
+from ..login.utils import calculate_expiration
 
 
 class Credentials:
@@ -21,13 +25,20 @@ class Credentials:
 
     def __init__(
         self,
-        access_token: str = None,
-        id_token: str = None,
-        refresh_token: str = None,
-        token_type: str = None,
-        lifespan: int = None,
-        expiration: float = None
+        *,
+        region: str,
+        client_id: str,
+        username: str,
+        access_token: str,
+        id_token: str,
+        refresh_token: str,
+        token_type: str,
+        lifespan: int,
+        expiration: float,
     ):
+        self.region = region
+        self.client_id = client_id
+        self.username = username
         self._access_token = access_token
         self._id_token = id_token
         self.refresh_token = refresh_token
@@ -40,7 +51,19 @@ class Credentials:
         Use the refresh token to get new access and ID tokens
         :return: None
         """
-        print(f'Expired @ {self.expiration}')
+        client = boto3.client('cognito-idp', region_name=self.region)
+        response = client.initiate_auth(
+            ClientId=self.client_id,
+            AuthFlow="REFRESH_TOKEN",
+            AuthParameters={
+                "CURRENT_USER": self.username,
+                "REFRESH_TOKEN": self.refresh_token
+            }
+        )
+        self._access_token = response["AuthenticationResult"]["AccessToken"]
+        self._id_token = response["AuthenticationResult"]["IdToken"]
+        self.lifespan = response["AuthenticationResult"]["ExpiresIn"]
+        self.expiration = calculate_expiration(response)
 
     @property
     def is_fresh(self) -> bool:
@@ -87,7 +110,17 @@ class Credentials:
         :param filename: name and path for file to load
         :return: Credentials object
         """
-        credentials = cls()
+        credentials = cls(
+            region="",
+            client_id="",
+            username="",
+            access_token="",
+            id_token="",
+            refresh_token="",
+            token_type="",
+            lifespan=0,
+            expiration=0
+        )
         with open(filename, encoding="ascii") as infile:
             credentials.__dict__.update(json.loads(infile.read()))
         return credentials

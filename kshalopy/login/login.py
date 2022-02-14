@@ -11,7 +11,7 @@ import boto3
 from ..config import Config
 from ..credentials import Credentials
 from .helper import LoginHelper
-from .utils import date_string_to_timestamp
+from .utils import calculate_expiration
 
 
 @dataclass
@@ -130,18 +130,14 @@ class LoginHandler:
             Session=self.last_session,
         )
 
-        expiration = (
-            date_string_to_timestamp(
-                response["ResponseMetadata"]["HTTPHeaders"]["date"]
-            )
-            + response["AuthenticationResult"]["ExpiresIn"]
-        )
-
         self.credentials = Credentials(
+            region=self.app_config.region,
+            client_id=self.app_config.client_id,
+            username=self.login_params.username,
             access_token=response["AuthenticationResult"]["AccessToken"],
             id_token=response["AuthenticationResult"]["IdToken"],
             refresh_token=response["AuthenticationResult"]["RefreshToken"],
             token_type=response["AuthenticationResult"]["TokenType"],
             lifespan=response["AuthenticationResult"]["ExpiresIn"],
-            expiration=expiration
+            expiration=calculate_expiration(response)
         )

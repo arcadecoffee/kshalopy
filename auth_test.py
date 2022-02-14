@@ -9,11 +9,11 @@ from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
 
 CREDENTIALS_FILE = 'credentials.secret.json'
 
+config = Config.load_defaults()
+
 if os.path.exists(CREDENTIALS_FILE):
     credentials = Credentials.load_credentials(CREDENTIALS_FILE)
 else:
-    config = Config.load_defaults()
-
     login_params = LoginParameters(
         username=input("Username: "),
         password=input("Password: "),
@@ -32,3 +32,5 @@ else:
 
     credentials = authenticator.credentials
     credentials.save_credentials(CREDENTIALS_FILE)
+
+print("Done")
