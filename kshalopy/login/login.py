@@ -8,11 +8,11 @@ from enum import Enum
 
 import boto3
 
-from ..config import Config
-from ..credentials import Credentials
-from ..utils import calculate_expiration
+from kshalopy.config import Config
+from kshalopy.credentials import Credentials
+from kshalopy.utils import calculate_expiration
 
-from .helper import LoginHelper
+from kshalopy.login.helper import LoginHelper
 
 
 @dataclass

@@ -2,4 +2,4 @@
 kshalopy.credentials
 """
 
-from .credentials import Credentials
+from kshalopy.credentials.credentials import Credentials

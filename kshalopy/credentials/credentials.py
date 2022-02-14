@@ -14,7 +14,7 @@ from datetime import datetime
 
 import boto3
 
-from ..utils import calculate_expiration
+from kshalopy.utils import calculate_expiration
 
 
 class Credentials:

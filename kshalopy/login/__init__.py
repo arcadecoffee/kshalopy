@@ -2,4 +2,4 @@
 kshalopy.login
 """
 
-from .login import LoginHandler, LoginParameters, VerificationMethods
+from kshalopy.login.login import LoginHandler, LoginParameters, VerificationMethods

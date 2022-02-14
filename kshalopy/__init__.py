@@ -2,6 +2,6 @@
 API for interfacing with Kwikset Halo devices and 'public' APIs
 """
 
-from .login import LoginHandler, LoginParameters, VerificationMethods
-from .config import Config
-from .credentials import Credentials
+from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
+from kshalopy.config import Config
+from kshalopy.credentials import Credentials
