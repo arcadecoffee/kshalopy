@@ -115,17 +115,19 @@ Login Flow:
 userName = '**REMOVED**'
 clientId = client_id from spectrum.environments.json
 
-# Get AccessToken and IdToken
+# Refresh AccessToken and IdToken
 aws cognito-idp initiate-auth --region us-east-1 --client-id $clientId --auth-flow REFRESH_TOKEN --auth-parameters CURRENT_USER=$userName,REFRESH_TOKEN=$refreshToken
 
-# Get identityId -- THIS MAY BE UNNECCESARY
+# Get identityId
 aws cognito-identity get-id --region us-east-1 --identity-pool-id us-east-1:3e3c1b84-4a85-4ad1-8785-1ba943b85075 --logins cognito-idp.us-east-1.amazonaws.com/us-east-1_6B3uo6uKN=$idToken
 
-# Get AccessKeyId, SecretKey, and SessionToken -- THIS MAY BE UNNECCESARY
+# Get AccessKeyId, SecretKey, and SessionToken
 aws cognito-identity get-credentials-for-identity --region us-east-1 --identity-id $identityID --logins cognito-idp.us-east-1.amazonaws.com/us-east-1_6B3uo6uKN=$idToken
 
 # Global sign-out
 aws cognito-idp global-sign-out --region us-east-1  --access-token $token
+
+
 
 Realtime Client Implementation
 https://docs.aws.amazon.com/appsync/latest/devguide/aws-appsync-real-time-data.html

@@ -1,1 +1,5 @@
-from .login import LoginHandler, VerificationMethod
+"""
+kshalopy.login
+"""
+
+from .login import LoginHandler, LoginParameters, VerificationMethods

@@ -1,12 +1,36 @@
+"""
+kshalopy.login.login
+"""
+from __future__ import annotations
+
+from dataclasses import dataclass
 from enum import Enum
 
 import boto3
 
+from ..config import Config
+from ..credentials import Credentials
 from .helper import LoginHelper
 from .utils import date_string_to_timestamp
 
 
-class VerificationMethod(Enum):
+@dataclass
+class LoginParameters:
+    """
+    Class containing credentials and preferences for login
+    """
+
+    username: str
+    password: str
+    verification_method: VerificationMethods
+    device_key: str
+
+
+class VerificationMethods(Enum):
+    """
+    Enumeration of available verification methods
+    """
+
     EMAIL = "email"
     PHONE = "phone"
 
@@ -15,42 +39,39 @@ class VerificationMethod(Enum):
 
 
 class LoginHandler:
-    def __init__(
-        self,
-        username: str,
-        password: str,
-        user_pool_id: str,
-        client_id: str,
-        client_secret: str,
-        device_key: str,
-        verification_method: VerificationMethod,
-    ):
-        self.username = username
-        self.password = password
-        self.client_id = client_id
-        self.device_key = device_key
-        self.client_secret = client_secret
-        self.verification_method = verification_method
-        self.region, self.pool_id = user_pool_id.split("_")
+    """
+    Class for execution of the login process from initial username and password input,
+    response with verification method, response with verification code, and receipt of
+    credential tokens at the end.
+    """
 
-        self.cognito_client = boto3.client("cognito-idp", region_name=self.region)
-        self.tokens = None
+    def __init__(self, login_params: LoginParameters, app_config: Config):
+        self.login_params = login_params
+        self.app_config = app_config
+
+        self.cognito_client = boto3.client("cognito-idp", region_name=app_config.region)
+        self.credentials = None
         self.last_session = None
 
-    def start_login(self):
+    def start_login(self) -> None:
+        """
+        Perform the first steps of the login process; sending username and initial auth
+        parameters to the server, response to the first challenge, and response with
+        verification method.
+
+        Exceptions will be raised by the Cognito client if the username and password
+        are invalid.
+        :return: None
+        """
         auth_helper = LoginHelper(
-            username=self.username,
-            password=self.password,
-            pool_id=self.pool_id,
-            client_id=self.client_id,
-            device_key=self.device_key,
-            client_secret=self.client_secret,
+            login_params=self.login_params,
+            app_config=self.app_config
         )
 
         response_1 = self.cognito_client.initiate_auth(
             AuthFlow="CUSTOM_AUTH",
             AuthParameters=auth_helper.auth_parameters,
-            ClientId=self.client_id,
+            ClientId=self.app_config.client_id,
         )
 
         response_2 = self.cognito_client.respond_to_auth_challenge(
@@ -58,30 +79,42 @@ class LoginHandler:
             ChallengeResponses=auth_helper.process_challenge(
                 response_1["ChallengeParameters"]
             ),
-            ClientId=self.client_id,
+            ClientId=self.app_config.client_id,
             Session=response_1["Session"],
         )
 
         answer = ",".join(
             [
                 "answerType:generateCode",
-                f"medium:{self.verification_method}",
+                f"medium:{self.login_params.verification_method}",
                 "codeType:login",
             ]
         )
         response_3 = self.cognito_client.respond_to_auth_challenge(
             ChallengeName="CUSTOM_CHALLENGE",
-            ChallengeResponses={"ANSWER": answer, "USERNAME": self.username},
-            ClientId=self.client_id,
+            ChallengeResponses={
+                "ANSWER": answer,
+                "USERNAME": self.login_params.username,
+            },
+            ClientId=self.app_config.client_id,
             Session=response_2["Session"],
         )
         self.last_session = response_3["Session"]
 
-    def submit_verification_code(self, code: str):
+    def submit_verification_code(self, code: str) -> None:
+        """
+        Supply the verification code to the server and receive credential tokens in
+        response.
+
+        An exception will be raised by the Cognito client if the verification code is
+        invalid.
+        :param code: code received via specified verification method
+        :return: None
+        """
         answer = ",".join(
             [
                 "answerType:verifyCode",
-                f"medium:{self.verification_method}",
+                f"medium:{self.login_params.verification_method}",
                 "codeType:login",
                 f"code:{code}",
             ]
@@ -89,8 +122,11 @@ class LoginHandler:
 
         response = self.cognito_client.respond_to_auth_challenge(
             ChallengeName="CUSTOM_CHALLENGE",
-            ChallengeResponses={"ANSWER": answer, "USERNAME": self.username},
-            ClientId=self.client_id,
+            ChallengeResponses={
+                "ANSWER": answer,
+                "USERNAME": self.login_params.username,
+            },
+            ClientId=self.app_config.client_id,
             Session=self.last_session,
         )
 
@@ -101,10 +137,11 @@ class LoginHandler:
             + response["AuthenticationResult"]["ExpiresIn"]
         )
 
-        self.tokens = {
-            "AccessToken": response["AuthenticationResult"]["AccessToken"],
-            "IdToken": response["AuthenticationResult"]["IdToken"],
-            "RefreshToken": response["AuthenticationResult"]["RefreshToken"],
-            "TokenType": response["AuthenticationResult"]["TokenType"],
-            "ExpirationUTC": expiration,
-        }
+        self.credentials = Credentials(
+            access_token=response["AuthenticationResult"]["AccessToken"],
+            id_token=response["AuthenticationResult"]["IdToken"],
+            refresh_token=response["AuthenticationResult"]["RefreshToken"],
+            token_type=response["AuthenticationResult"]["TokenType"],
+            lifespan=response["AuthenticationResult"]["ExpiresIn"],
+            expiration=expiration
+        )

@@ -1,7 +1,13 @@
+"""
+kshalopy.login.config
+
+Configs and constants for Kwikset Cognito SRP login process
+"""
+
 # https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js#L21
 from hashlib import sha256
 
-COGNITO_HASH_ALGO = sha256
+CognitoHashAlgo = sha256
 
 # https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js#L43
 COGNITO_AUTH_N = (
@@ -24,7 +30,7 @@ COGNITO_AUTH_N = (
 )
 
 # https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js#L71
-COGNITO_AUTH_g = "2"
+COGNITO_AUTH_G = "2"
 
 # https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js#L80
 COGNITO_INFO_BITS = b"Caldera Derived Key\x01"

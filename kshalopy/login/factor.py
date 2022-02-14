@@ -1,11 +1,20 @@
+"""
+kshalopy.login.factor
+"""
+
 from __future__ import annotations
 
 
 class Factor:
+    """
+    Implements various integer, hexadecimal, padded hexadecimal and byte representations
+    of a value.
+    """
+
     def __init__(self, int_value: int = 0, hex_value: str = "0") -> None:
         if int_value:
             self.int = int_value
-            self.hex = "%x" % self.int
+            self.hex = f"{self.int:x}"
         else:
             self.hex = hex_value
             self.int = int(self.hex, 16)
@@ -26,8 +35,13 @@ class Factor:
 
     @staticmethod
     def pad_hex(value: str) -> str:
+        """
+        Pad a hexadecimal value as required by AWS Cognito SRP protocol.
+        :param value: value to pad (if needed)
+        :return: padding compliant value
+        """
         if len(value) % 2 == 1:
-            value = "0" + value
+            value = f"0{value}"
         elif int(value[0], 16) >= 8:
-            value = "00" + value
+            value = f"00{value}"
         return value

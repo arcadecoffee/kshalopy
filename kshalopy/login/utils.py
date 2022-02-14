@@ -1,25 +1,51 @@
+"""
+kshalopy.login.utils
+"""
+
 import hmac
 
 from datetime import datetime
 
-from .config import COGNITO_HASH_ALGO, COGNITO_INFO_BITS, DATETIME_FORMAT
+from .config import CognitoHashAlgo, COGNITO_INFO_BITS
 from .factor import Factor
 
 
-def compute_hkdf(key_value: Factor, msg_value: Factor) -> bytes:
-    prk = hmac.new(key_value.bytes, msg_value.bytes, COGNITO_HASH_ALGO).digest()
-    hmac_hash = hmac.new(prk, COGNITO_INFO_BITS, COGNITO_HASH_ALGO).digest()
+def get_hmac_hash(key_value: Factor, msg_value: Factor) -> bytes:
+    """
+    Get HMAC hask for given key and message as per Cognito SRP protocol
+    :param key_value: key value
+    :param msg_value: message value
+    :return: first 16 bytes of HMAC hash as per Cognito SRP spec
+    """
+    prk = hmac.new(key_value.bytes, msg_value.bytes, CognitoHashAlgo).digest()
+    hmac_hash = hmac.new(prk, COGNITO_INFO_BITS, CognitoHashAlgo).digest()
     return hmac_hash[:16]
 
 
-def concat_and_hash(a: str, b: str) -> Factor:
-    r = hash_hex(bytearray.fromhex(a + b))
-    return Factor(hex_value=r)
+def concat_and_hash(left: str, right: str) -> Factor:
+    """
+    Create a Factor value by concatentating two hex strings together
+    :param left: hexadecimal string value
+    :param right: hexadecimal string value
+    :return: value
+    """
+    result = hash_bytes(bytearray.fromhex(left + right))
+    return Factor(hex_value=result)
 
 
-def hash_hex(data: bytes) -> str:
-    return COGNITO_HASH_ALGO(data).hexdigest()
+def hash_bytes(data: bytes) -> str:
+    """
+    Hash a given byte set using the algorithm specified in the config
+    :param data: bytes to hash
+    :return: hexadecimal digest of the resulting hash value
+    """
+    return CognitoHashAlgo(data).hexdigest()
 
 
-def date_string_to_timestamp(dt: str) -> float:
-    return datetime.strptime(dt, '%a, %d %b %Y %H:%M:%S %Z').timestamp()
+def date_string_to_timestamp(dt_string: str) -> float:
+    """
+    Convert timestamp string from Cognito client to timestamp value
+    :param dt: date string
+    :return: timestamp value
+    """
+    return datetime.strptime(dt_string, '%a, %d %b %Y %H:%M:%S %Z').timestamp()
