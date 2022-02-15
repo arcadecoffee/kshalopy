@@ -38,7 +38,7 @@ class Config:
     client_secret: str
 
     @classmethod
-    def from_json(cls, json_string: str) -> Config:
+    def from_app_json(cls, json_string: str) -> Config:
         """
         Create a Config object from a JSON string
         :param json_string: JSON string to parse
@@ -57,14 +57,14 @@ class Config:
         )
 
     @classmethod
-    def from_json_file(cls, json_file: str) -> Config:
+    def from_app_json_file(cls, json_file: str) -> Config:
         """
         Create a Config object from a JSON file
         :param json_file: file name
         :return: Config object
         """
         with open(json_file, encoding="ascii") as json_fh:
-            return cls.from_json(json_fh.read())
+            return cls.from_app_json(json_fh.read())
 
     @classmethod
     def load_defaults(cls):
@@ -72,4 +72,4 @@ class Config:
         Load the default configuration file included with this module
         :return: Config object
         """
-        return cls.from_json_file(DEFAULT_CONFIG_JSON)
+        return cls.from_app_json_file(DEFAULT_CONFIG_JSON)
