@@ -39,8 +39,8 @@ class Credentials:
         self.region = region
         self.client_id = client_id
         self.username = username
-        self._access_token = access_token
-        self._id_token = id_token
+        self.access_token = access_token
+        self.id_token = id_token
         self.refresh_token = refresh_token
         self.token_type = token_type
         self.lifespan = lifespan
@@ -51,48 +51,28 @@ class Credentials:
         Use the refresh token to get new access and ID tokens
         :return: None
         """
-        client = boto3.client('cognito-idp', region_name=self.region)
+        client = boto3.client("cognito-idp", region_name=self.region)
         response = client.initiate_auth(
             ClientId=self.client_id,
             AuthFlow="REFRESH_TOKEN",
             AuthParameters={
                 "CURRENT_USER": self.username,
-                "REFRESH_TOKEN": self.refresh_token
-            }
+                "REFRESH_TOKEN": self.refresh_token,
+            },
         )
-        self._access_token = response["AuthenticationResult"]["AccessToken"]
-        self._id_token = response["AuthenticationResult"]["IdToken"]
+        self.access_token = response["AuthenticationResult"]["AccessToken"]
+        self.id_token = response["AuthenticationResult"]["IdToken"]
         self.lifespan = response["AuthenticationResult"]["ExpiresIn"]
         self.expiration = calculate_expiration(response)
 
     @property
-    def is_fresh(self) -> bool:
+    def ttl(self) -> float:
         """
-        A credential set is 'fresh' if it is less that 90% through its lifespan
-        :return: freshness status
+        Return time, in seconds, until expiration of current access and ID token
+        :return: time until expiration
         """
-        now = datetime.utcnow().timestamp()
-        return now < (self.expiration - (self.lifespan * 0.1))
-
-    @property
-    def access_token(self) -> str:
-        """
-        Get a 'good' access token
-        :return: access token string
-        """
-        if not self.is_fresh:
-            self.get_fresh_tokens()
-        return self._access_token
-
-    @property
-    def id_token(self) -> str:
-        """
-        Get a 'good' ID token
-        :return: access token string
-        """
-        if not self.is_fresh:
-            self.get_fresh_tokens()
-        return self._id_token
+        ttl = self.expiration - datetime.utcnow().timestamp()
+        return 0 if ttl <= 0 else ttl
 
     def save_credentials(self, filename: str) -> None:
         """
@@ -100,8 +80,8 @@ class Credentials:
         :param filename: name and path for save file
         :return: None
         """
-        with open(filename, 'w', encoding='ascii') as outfile:
-            outfile.write(json.dumps(self.__dict__))
+        with open(filename, "w", encoding="ascii") as outfile:
+            json.dump(self.__dict__, outfile, indent=4)
 
     @classmethod
     def load_credentials(cls, filename: str) -> Credentials:
@@ -110,17 +90,5 @@ class Credentials:
         :param filename: name and path for file to load
         :return: Credentials object
         """
-        credentials = cls(
-            region="",
-            client_id="",
-            username="",
-            access_token="",
-            id_token="",
-            refresh_token="",
-            token_type="",
-            lifespan=0,
-            expiration=0
-        )
         with open(filename, encoding="ascii") as infile:
-            credentials.__dict__.update(json.loads(infile.read()))
-        return credentials
+            return Credentials(**json.load(infile))
