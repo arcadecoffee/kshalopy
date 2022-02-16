@@ -65,8 +65,7 @@ class LoginHandler:
         :return: None
         """
         auth_helper = LoginHelper(
-            login_params=self.login_params,
-            app_config=self.app_config
+            login_params=self.login_params, app_config=self.app_config
         )
 
         response_1 = self.cognito_client.initiate_auth(
@@ -140,5 +139,5 @@ class LoginHandler:
             refresh_token=response["AuthenticationResult"]["RefreshToken"],
             token_type=response["AuthenticationResult"]["TokenType"],
             lifespan=response["AuthenticationResult"]["ExpiresIn"],
-            expiration=calculate_expiration(response)
+            expiration=calculate_expiration(response),
         )

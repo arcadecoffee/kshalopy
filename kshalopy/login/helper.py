@@ -77,7 +77,7 @@ class LoginHelper:
 
     def _calculate_a_values(self) -> Tuple[Factor, Factor]:
         """
-        Calculatre 'a' values for Cognito SRP protocol
+        Calculate 'a' values for Cognito SRP protocol
         :return: (small 'a', big 'a')
         """
         A = a = 0
@@ -94,9 +94,8 @@ class LoginHelper:
         x = concat_and_hash(salt.padded_hex, id_hash)
         base = srp_b.int - self.k.int * pow(self.g.int, x.int, self.N.int)
         exponent = (self.a + u * x).int
-        s = pow(base, exponent, self.N.int)
-        hkdf = get_hmac_hash(u, Factor(int_value=s))
-        return hkdf
+        s = Factor(int_value=pow(base, exponent, self.N.int))
+        return get_hmac_hash(key_value=u, msg_value=s)
 
     def process_challenge(self, challenge_parameters) -> Dict[str, str]:
         """

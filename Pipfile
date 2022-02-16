@@ -5,12 +5,13 @@ name = "pypi"
 
 [packages]
 boto3 = "*"
-pytest = "*"
-coverage = "*"
+python-dateutil = "*"
 
 [dev-packages]
 black = "*"
 pylint = "*"
+pytest = "*"
+coverage = "*"
 
 [requires]
 python_version = "3.8"

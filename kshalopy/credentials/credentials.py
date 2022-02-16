@@ -9,6 +9,7 @@ kshalopy.credentials.credentials
 from __future__ import annotations
 
 import json
+import logging
 
 from datetime import datetime
 
@@ -60,6 +61,7 @@ class Credentials:
                 "REFRESH_TOKEN": self.refresh_token,
             },
         )
+        logging.info(response)
         self.access_token = response["AuthenticationResult"]["AccessToken"]
         self.id_token = response["AuthenticationResult"]["IdToken"]
         self.lifespan = response["AuthenticationResult"]["ExpiresIn"]
@@ -71,7 +73,7 @@ class Credentials:
         Return time, in seconds, until expiration of current access and ID token
         :return: time until expiration
         """
-        ttl = self.expiration - datetime.utcnow().timestamp()
+        ttl = self.expiration - datetime.now().timestamp()
         return 0 if ttl <= 0 else ttl
 
     def save_credentials(self, filename: str) -> None:

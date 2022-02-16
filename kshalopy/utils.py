@@ -2,8 +2,9 @@
 kshalopy.utils
 """
 
-from datetime import datetime
 from typing import Dict
+
+from dateutil import parser
 
 
 def date_string_to_timestamp(dt_string: str) -> float:
@@ -12,7 +13,7 @@ def date_string_to_timestamp(dt_string: str) -> float:
     :param dt_string: date string
     :return: timestamp value
     """
-    return datetime.strptime(dt_string, '%a, %d %b %Y %H:%M:%S %Z').timestamp()
+    return parser.parse(dt_string).timestamp()
 
 
 def calculate_expiration(response: Dict[str, Dict]) -> float:
@@ -22,9 +23,7 @@ def calculate_expiration(response: Dict[str, Dict]) -> float:
     :return: float timestamp of expiration
     """
     expiration = (
-            date_string_to_timestamp(
-                response["ResponseMetadata"]["HTTPHeaders"]["date"]
-            )
-            + response["AuthenticationResult"]["ExpiresIn"]
+        date_string_to_timestamp(response["ResponseMetadata"]["HTTPHeaders"]["date"])
+        + response["AuthenticationResult"]["ExpiresIn"]
     )
     return expiration

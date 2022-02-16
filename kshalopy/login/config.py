@@ -34,5 +34,3 @@ COGNITO_AUTH_G = "2"
 
 # https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js#L80
 COGNITO_INFO_BITS = b"Caldera Derived Key\x01"
-
-DATETIME_FORMAT = '%a, %d %b %y %H:%M:%S %Z'
