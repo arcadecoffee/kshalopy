@@ -61,7 +61,6 @@ class Credentials:
                 "REFRESH_TOKEN": self.refresh_token,
             },
         )
-        logging.info(response)
         self.access_token = response["AuthenticationResult"]["AccessToken"]
         self.id_token = response["AuthenticationResult"]["IdToken"]
         self.lifespan = response["AuthenticationResult"]["ExpiresIn"]
