@@ -30,8 +30,7 @@ def refresh_credentials(credentials: AppCredentials, exit_event, offset: int = 6
             credentials.refresh()
             credentials.save_credentials(CREDENTIALS_FILE)
             logging.info(
-                "Got fresh credentials - exp: %s",
-                credentials.expiration_dt.isoformat()
+                "Got fresh credentials - exp: %s", credentials.expiration_dt.isoformat()
             )
         if exit_event.wait(timeout=(credentials.ttl - offset)):
             break

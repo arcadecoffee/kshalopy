@@ -50,11 +50,7 @@ class LoginHelper:
         hmac_obj = hmac.new(client_secret.encode(), message, CognitoHashAlgo)
         return b64encode(hmac_obj.digest()).decode()
 
-    def __init__(
-        self,
-        login_params,
-        app_config
-    ):
+    def __init__(self, login_params, app_config):
         self.login_params = login_params
         self.app_config = app_config
         self.N = Factor(hex_value=COGNITO_AUTH_N)
@@ -72,7 +68,7 @@ class LoginHelper:
             self.auth_parameters["SECRET_HASH"] = self.get_secret_hash(
                 self.login_params.username,
                 self.app_config.client_id,
-                self.app_config.client_secret
+                self.app_config.client_secret,
             )
 
     def _calculate_a_values(self) -> Tuple[Factor, Factor]:
@@ -90,7 +86,9 @@ class LoginHelper:
         self, user_id: str, password: str, srp_b: Factor, salt: Factor
     ) -> bytes:
         u = concat_and_hash(self.A.padded_hex, srp_b.padded_hex)
-        id_hash = hash_bytes(f"{self.app_config.user_pool_id}{user_id}:{password}".encode())
+        id_hash = hash_bytes(
+            f"{self.app_config.user_pool_id}{user_id}:{password}".encode()
+        )
         x = concat_and_hash(salt.padded_hex, id_hash)
         base = srp_b.int - self.k.int * pow(self.g.int, x.int, self.N.int)
         exponent = (self.a + u * x).int
@@ -133,6 +131,6 @@ class LoginHelper:
             response["SECRET_HASH"] = self.get_secret_hash(
                 internal_username,
                 self.app_config.client_id,
-                self.app_config.client_secret
+                self.app_config.client_secret,
             )
         return response

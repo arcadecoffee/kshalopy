@@ -18,11 +18,13 @@ import boto3
 from kshalopy.config import Config
 from kshalopy.utils import calculate_expiration
 
+
 @dataclass
 class CredentialsBase:
     """
     Base class for credentials and generic methods
     """
+
     expiration: float = 0
 
     @property
@@ -123,7 +125,7 @@ class AppCredentials(CredentialsBase):
                 region=self.app_config.region,
                 identity_pool_id=self.app_config.identity_pool_id,
                 user_pool_id=self.app_config.user_pool_id,
-                id_token=self.id_token
+                id_token=self.id_token,
             )
 
     def refresh(self, ttl_limit: int = 900, force: bool = False) -> None:
@@ -149,7 +151,7 @@ class AppCredentials(CredentialsBase):
                 region=self.app_config.region,
                 identity_pool_id=self.app_config.identity_pool_id,
                 user_pool_id=self.app_config.user_pool_id,
-                id_token=self.id_token
+                id_token=self.id_token,
             )
 
     @classmethod

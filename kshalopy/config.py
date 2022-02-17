@@ -13,7 +13,7 @@ import os
 
 from dataclasses import dataclass
 
-DEFAULT_CONFIG_JSON = os.path.join(os.path.dirname(__file__), 'default_config.json')
+DEFAULT_CONFIG_JSON = os.path.join(os.path.dirname(__file__), "default_config.json")
 
 
 @dataclass
