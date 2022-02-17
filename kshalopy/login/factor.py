@@ -30,8 +30,8 @@ class Factor:
     def __mul__(self, other: Factor) -> Factor:
         return Factor(int_value=self.int * other.int)
 
-    def __repr__(self) -> int:
-        return self.int
+    def __repr__(self) -> str:
+        return str(self.int)
 
     @staticmethod
     def pad_hex(value: str) -> str:
