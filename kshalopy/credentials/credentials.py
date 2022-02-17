@@ -51,14 +51,7 @@ class CredentialsBase:
         :return: None
         """
         with open(filename, "w", encoding="ascii") as outfile:
-            outfile.write(self.to_json())
-
-    def to_json(self) -> str:
-        """
-        Render class a JSON string
-        :return: JSON string containing class attributes
-        """
-        return json.dumps(self, default=lambda o: o.__dict__, indent=4)
+            outfile.write(json.dumps(self, default=lambda o: o.__dict__, indent=4))
 
 
 @dataclass
