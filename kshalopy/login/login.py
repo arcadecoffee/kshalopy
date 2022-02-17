@@ -9,7 +9,7 @@ from enum import Enum
 import boto3
 
 from kshalopy.config import Config
-from kshalopy.credentials import Credentials
+from kshalopy.credentials import AppCredentials
 from kshalopy.utils import calculate_expiration
 
 from kshalopy.login.helper import LoginHelper
@@ -130,9 +130,8 @@ class LoginHandler:
             Session=self.last_session,
         )
 
-        self.credentials = Credentials(
-            region=self.app_config.region,
-            client_id=self.app_config.client_id,
+        self.credentials = AppCredentials(
+            app_config=self.app_config,
             username=self.login_params.username,
             access_token=response["AuthenticationResult"]["AccessToken"],
             id_token=response["AuthenticationResult"]["IdToken"],

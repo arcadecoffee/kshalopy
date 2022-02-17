@@ -32,7 +32,7 @@ class Config:
     port: int
     use_ssl: bool
     region: str
-    pool_id: str
+    user_pool_id: str
     client_id: str
     identity_pool_id: str
     client_secret: str
@@ -50,7 +50,7 @@ class Config:
             port=settings["port"],
             use_ssl=settings["useSSL"],
             region=settings["userpoolid"].split("_")[0],
-            pool_id=settings["userpoolid"].split("_")[1],
+            user_pool_id=settings["userpoolid"].split("_")[1],
             client_id=settings["userappclientid"],
             identity_pool_id=settings["identitypoolid"],
             client_secret=settings["identityappclientsecret"],

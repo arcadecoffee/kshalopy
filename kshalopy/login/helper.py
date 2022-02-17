@@ -90,7 +90,7 @@ class LoginHelper:
         self, user_id: str, password: str, srp_b: Factor, salt: Factor
     ) -> bytes:
         u = concat_and_hash(self.A.padded_hex, srp_b.padded_hex)
-        id_hash = hash_bytes(f"{self.app_config.pool_id}{user_id}:{password}".encode())
+        id_hash = hash_bytes(f"{self.app_config.user_pool_id}{user_id}:{password}".encode())
         x = concat_and_hash(salt.padded_hex, id_hash)
         base = srp_b.int - self.k.int * pow(self.g.int, x.int, self.N.int)
         exponent = (self.a + u * x).int
@@ -115,7 +115,7 @@ class LoginHelper:
             user_id_for_srp, self.login_params.password, srp_b, salt
         )
         msg = (
-            self.app_config.pool_id.encode()
+            self.app_config.user_pool_id.encode()
             + user_id_for_srp.encode()
             + b64decode(secret_block)
             + timestamp.encode()
