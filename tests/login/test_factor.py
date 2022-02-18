@@ -19,6 +19,7 @@ def test_no_padding():
     a = Factor(hex_value="7d7f38")
     assert a.int == 8224568
 
+
 def test_operators():
     a = Factor(int_value=93159224)
     b = Factor(hex_value="7d7f38")
