@@ -42,3 +42,99 @@ def test_save_credentials(monkeypatch):
     credentials = AppCredentials.load_credentials(test_path)
     monkeypatch.setattr("builtins.open", FakeFile)
     credentials.save_credentials("foo.123.json")
+
+
+class MockClient:
+    call_count = -1
+
+    arg_sets = [
+        {'AuthFlow': 'REFRESH_TOKEN',
+         'AuthParameters': {'CURRENT_USER': 'fake_username',
+                            'REFRESH_TOKEN': 'fake_refresh_token'},
+         'ClientId': 'fake_client_id'},
+        {
+            "IdentityPoolId": "fake_identity_pool_id",
+            "Logins": {
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": "fake_id_token"
+            },
+        },
+        {
+            "IdentityId": "fake_identity_id",
+            "Logins": {
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": "fake_id_token"
+            },
+        },
+    ]
+
+    return_sets = [
+        {
+            "AuthenticationResult": {
+                "AccessToken": "fake_access_token",
+                "ExpiresIn": 3600,
+                "IdToken": "fake_id_token",
+                "RefreshToken": "fake_refresh_token",
+                "TokenType": "Bearer",
+            },
+            "ResponseMetadata": {
+                "HTTPHeaders": {"date": "Fri, Feb 18 2022 16:57:52 GMT"}
+            },
+            "Session": "fake_session",
+        },
+        {
+            "IdentityId": "fake_identity_id",
+        },
+        {
+            "IdentityId": "fake_identity_id",
+            "Credentials": {
+                "AccessKeyId": "fake_access_key_id",
+                "SecretKey": "fake_secret_key",
+                "SessionToken": "fake_session_token",
+                "Expiration": datetime(2022, 2, 18, 12, 47, 56, 201585)
+            }
+        }
+    ]
+
+    def __init__(self, client_type, region_name):
+        assert client_type in ("cognito-idp", "cognito-identity")
+        assert region_name
+
+        for func in (
+                "initiate_auth",
+                "respond_to_auth_challenge",
+                "get_id",
+                "get_credentials_for_identity",
+        ):
+            self.__dict__[func] = self.handle_call
+
+    def handle_call(self, **kwargs):
+        self.__class__.call_count += 1
+        assert kwargs == self.arg_sets[self.__class__.call_count]
+        return self.return_sets[self.__class__.call_count]
+
+
+def test_refresh(monkeypatch):
+    class MyMockClient(MockClient):
+        pass
+    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    credentials = AppCredentials.load_credentials(test_path)
+    credentials.refresh()
+
+
+def test_early_refresh(monkeypatch):
+    class MyMockClient(MockClient):
+        pass
+    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    credentials = AppCredentials.load_credentials(test_path)
+    credentials.expiration = datetime.now().timestamp() + 1000
+    credentials.refresh()
+    assert MyMockClient.call_count == -1
+
+
+def test_forced_refresh(monkeypatch):
+    class MyMockClient(MockClient):
+        pass
+    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    credentials = AppCredentials.load_credentials(test_path)
+    credentials.expiration = datetime.now().timestamp() + 1000
+    credentials.refresh(force=True)
+    assert MyMockClient.call_count > -1
