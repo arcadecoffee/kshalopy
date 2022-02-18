@@ -1,12 +1,15 @@
 import json
 
 from datetime import datetime
+from io import TextIOBase
 from pathlib import Path
 
 from kshalopy.credentials.credentials import AppCredentials
 
 test_path = str(Path.joinpath(Path(__file__).parent, "test_credentials.json"))
-test_path_partial = str(Path.joinpath(Path(__file__).parent, "test_partial_credentials.json"))
+test_path_partial = str(
+    Path.joinpath(Path(__file__).parent, "test_partial_credentials.json")
+)
 
 
 def test_loaded_credentials():
@@ -25,3 +28,17 @@ def test_partial_loaded_credentials():
     assert not credentials.aws_credentials
     assert not credentials.app_config
     assert credentials.id_token == "fake_id_token"
+
+
+def test_save_credentials(monkeypatch):
+    class FakeFile(TextIOBase):
+        with open(test_path) as infile:
+            expected = infile.read()
+
+        def write(self, content):
+            with open(test_path) as infile:
+                assert json.loads(content) == json.loads(self.expected)
+
+    credentials = AppCredentials.load_credentials(test_path)
+    monkeypatch.setattr("builtins.open", FakeFile)
+    credentials.save_credentials("foo.123.json")
