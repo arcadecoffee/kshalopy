@@ -113,7 +113,7 @@ class AppCredentials(CredentialsBase):
     aws_credentials: AWSCredentials = None
 
     def __post_init__(self):
-        if not self.aws_credentials:
+        if self.app_config and not self.aws_credentials:
             self.aws_credentials = AWSCredentials.get_credentials(
                 region=self.app_config.region,
                 identity_pool_id=self.app_config.identity_pool_id,
@@ -156,8 +156,8 @@ class AppCredentials(CredentialsBase):
         """
         with open(filename, encoding="ascii") as infile:
             raw_data = json.load(infile)
-        if isinstance(raw_data["app_config"], dict):
+        if isinstance(raw_data.get("app_config"), dict):
             raw_data["app_config"] = Config(**raw_data["app_config"])
-        if isinstance(raw_data["aws_credentials"], dict):
+        if isinstance(raw_data.get("aws_credentials"), dict):
             raw_data["aws_credentials"] = AWSCredentials(**raw_data["aws_credentials"])
         return cls(**raw_data)
