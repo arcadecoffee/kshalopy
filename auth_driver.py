@@ -7,17 +7,18 @@ import os
 import signal
 import threading
 
-from kshalopy import Config, AppCredentials
-from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
+import kshalopy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s:" + logging.BASIC_FORMAT)
 
 CREDENTIALS_FILE = "credentials.secret.json"
 
-config = Config.load_defaults()
+config = kshalopy.Config.load_defaults()
 
 
-def refresh_credentials(credentials: AppCredentials, exit_event, offset: int = 600):
+def refresh_credentials(
+    credentials: kshalopy.AppCredentials, exit_event, offset: int = 600
+):
     """
     :param credentials:
     :param exit_event:
@@ -42,16 +43,18 @@ def main():
     :return:
     """
     if os.path.exists(CREDENTIALS_FILE):
-        credentials = AppCredentials.load_credentials(CREDENTIALS_FILE)
+        credentials = kshalopy.AppCredentials.load_credentials(CREDENTIALS_FILE)
     else:
-        login_params = LoginParameters(
+        login_params = kshalopy.LoginParameters(
             username=input("Username: "),
             password=input("Password: "),
-            verification_method=VerificationMethods.EMAIL,
+            verification_method=kshalopy.VerificationMethods.EMAIL,
             device_key="foo42",
         )
 
-        authenticator = LoginHandler(login_params=login_params, app_config=config)
+        authenticator = kshalopy.LoginHandler(
+            login_params=login_params, app_config=config
+        )
         authenticator.start_login()
 
         verification_code = input("Verification Code: ")
