@@ -11,15 +11,6 @@ from dataclasses import dataclass
 from typing import Union
 
 
-class Generic:
-    """
-    Generic data class
-    """
-
-    def __init__(self, **kwargs):
-        self.data = kwargs
-
-
 @dataclass
 class Device:
     """
@@ -99,6 +90,18 @@ class Home:
     def __post_init__(self):
         if isinstance(self.createddate, str):
             self.createddate = int(self.createddate)
+
+
+@dataclass
+class SharedUser:
+    """
+    Data-only class for Shared Users
+    """
+    sharedwithname: str = None
+    sharedbyname: str = None
+    useraccesslevel: str = None
+    useraccesslevelstatus: str = None
+    email: str = None
 
 
 @dataclass

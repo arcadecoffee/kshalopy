@@ -8,7 +8,7 @@ import urllib.request
 from typing import List
 
 from kshalopy.credentials import AppCredentials
-from kshalopy.models import Device, DeviceDetails, Generic, Home, User
+from kshalopy.models import Device, DeviceDetails, Home, SharedUser, User
 
 
 class RestClient:
@@ -103,14 +103,14 @@ class RestClient:
         selector = "/prod_v1/users/me"
         return self._response_to_objects(selector, User)[0]
 
-    def get_users_in_home(self, home: Home) -> List[Generic]:
+    def get_shared_users_in_home(self, home: Home) -> List[SharedUser]:
         """
 
         :param home:
         :return:
         """
         selector = f"/prod_v1/homes/{home.homeid}/sharedusers"
-        return self._response_to_objects(selector, Generic)
+        return self._response_to_objects(selector, SharedUser)
 
     def lock_device(self, device: Device):
         """

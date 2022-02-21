@@ -11,7 +11,7 @@ import kshalopy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s:" + logging.BASIC_FORMAT)
 
-CREDENTIALS_FILE = "credentials.secret.json"
+CREDENTIALS_FILE = "test-user.credentials.secret.json"
 
 config = kshalopy.Config.load_defaults()
 
@@ -48,7 +48,7 @@ def main():
         login_params = kshalopy.LoginParameters(
             username=input("Username: "),
             password=input("Password: "),
-            verification_method=kshalopy.VerificationMethods.EMAIL,
+            verification_method=kshalopy.VerificationMethods.PHONE,
             device_key="foo42",
         )
 
