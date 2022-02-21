@@ -5,8 +5,10 @@ kshalopy/rest/rest.py
 import json
 import urllib.request
 
+from typing import List
 
 from kshalopy.credentials import AppCredentials
+from kshalopy.models import Home, User
 
 
 class RestClient:
@@ -23,10 +25,29 @@ class RestClient:
             "Authorization", f"{credentials.token_type} {credentials.id_token}"
         )
 
-    def get_homes(self):
+    def get_my_user(self) -> User:
         """
         :return:
         """
-        self._request.selector = "/prod_v1/users/me/homes"
-        response_body = urllib.request.urlopen(self._request).read()
-        return json.loads(response_body.decode())
+        return self.response_to_objects("/prod_v1/users/me", User)[0]
+
+    def get_my_homes(self) -> List[Home]:
+        """
+        :return:
+        """
+        return self.response_to_objects("/prod_v1/users/me/homes", Home)
+
+    def response_to_objects(self, selector, class_type):
+        """
+        Execute request at specified selector and convert response body into a list of
+        provided type
+        :param selector:
+        :param class_type:
+        :return:
+        """
+        self._request.selector = selector
+        with urllib.request.urlopen(self._request) as request:
+            response_body = request.read()
+            response_dict = json.loads(response_body.decode())
+            objects = [class_type(**item) for item in response_dict["data"]]
+            return objects
