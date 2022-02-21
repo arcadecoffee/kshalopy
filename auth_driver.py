@@ -72,8 +72,13 @@ def main():
     )
     credential_worker.start()
 
-    while (not credential_worker.join(1)) and credential_worker.is_alive():
-        pass
+    rest_client = kshalopy.RestClient(credentials, "kshalopy_test", "kshalopy")
+    homes = rest_client.get_my_homes()
+    devices = {}
+    for home in homes:
+        for device in rest_client.get_devices_in_home(home):
+            devices[device.deviceid] = device
+    # pass
 
 
 if __name__ == "__main__":
