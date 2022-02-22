@@ -16,8 +16,8 @@ def test_loaded_credentials():
     credentials = AppCredentials.load_credentials(test_path)
     assert credentials.aws_credentials.secret_key == "fake_secret_key"
     assert credentials.id_token == "fake_id_token"
-    assert credentials.expiration_dt == datetime(
-        2022, 2, 18, 11, 46, 17, tzinfo=timezone.utc
+    assert credentials.expiration_dt.astimezone(timezone.utc) == datetime(
+        2022, 2, 18, 17, 46, 17, tzinfo=timezone.utc
     )
     assert credentials.ttl == 0
 
