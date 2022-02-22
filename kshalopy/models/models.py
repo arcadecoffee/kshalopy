@@ -4,8 +4,7 @@ kshalopy/models/models.py
 
 # pylint: disable=R0902,R0903
 # too-many-instance-attributes, too-few-public-methods
-# The models are as big as they are and no smaller; these are all dataclasses unless
-# there is a function or mutation to perform
+# The models are as big as they are and no smaller; these are all dataclasses
 
 from dataclasses import dataclass
 from typing import Union
@@ -49,6 +48,7 @@ class DeviceDetails:
     """
     Data-only class for Device Details
     """
+
     audiostatus: str = None
     ledstatus: str = None
     securescreenstatus: str = None

@@ -110,9 +110,9 @@ class MockClient:
                 "AccessKeyId": "fake_access_key_id",
                 "SecretKey": "fake_secret_key",
                 "SessionToken": "fake_session_token",
-                "Expiration": datetime(2022, 2, 18, 12, 47, 56, 201585)
-            }
-        }
+                "Expiration": datetime(2022, 2, 18, 12, 47, 56, 201585),
+            },
+        },
     ]
 
     def __init__(self, client_type, region_name):
@@ -120,10 +120,10 @@ class MockClient:
         assert region_name
 
         for func in (
-                "initiate_auth",
-                "respond_to_auth_challenge",
-                "get_id",
-                "get_credentials_for_identity",
+            "initiate_auth",
+            "respond_to_auth_challenge",
+            "get_id",
+            "get_credentials_for_identity",
         ):
             self.__dict__[func] = self.handle_call
 
@@ -171,6 +171,7 @@ def fake_login_flow(monkeypatch, client_secret, mock_client):
 def test_login_flow_with_secret(monkeypatch):
     class MyMockClient(MockClient):
         pass
+
     with_secret = fake_login_flow(monkeypatch, True, MyMockClient)
     assert with_secret.access_token == "fake_access_token"
 
@@ -178,6 +179,7 @@ def test_login_flow_with_secret(monkeypatch):
 def test_login_flow_without_secret(monkeypatch):
     class MyMockClient(MockClient):
         pass
+
     del MyMockClient.arg_sets[0]["AuthParameters"]["SECRET_HASH"]
     del MyMockClient.arg_sets[1]["ChallengeResponses"]["SECRET_HASH"]
     without_secret = fake_login_flow(monkeypatch, False, MyMockClient)

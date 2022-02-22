@@ -48,10 +48,14 @@ class MockClient:
     call_count = -1
 
     arg_sets = [
-        {'AuthFlow': 'REFRESH_TOKEN',
-         'AuthParameters': {'CURRENT_USER': 'fake_username',
-                            'REFRESH_TOKEN': 'fake_refresh_token'},
-         'ClientId': 'fake_client_id'},
+        {
+            "AuthFlow": "REFRESH_TOKEN",
+            "AuthParameters": {
+                "CURRENT_USER": "fake_username",
+                "REFRESH_TOKEN": "fake_refresh_token",
+            },
+            "ClientId": "fake_client_id",
+        },
         {
             "IdentityPoolId": "fake_identity_pool_id",
             "Logins": {
@@ -89,9 +93,9 @@ class MockClient:
                 "AccessKeyId": "fake_access_key_id",
                 "SecretKey": "fake_secret_key",
                 "SessionToken": "fake_session_token",
-                "Expiration": datetime(2022, 2, 18, 12, 47, 56, 201585)
-            }
-        }
+                "Expiration": datetime(2022, 2, 18, 12, 47, 56, 201585),
+            },
+        },
     ]
 
     def __init__(self, client_type, region_name):
@@ -99,10 +103,10 @@ class MockClient:
         assert region_name
 
         for func in (
-                "initiate_auth",
-                "respond_to_auth_challenge",
-                "get_id",
-                "get_credentials_for_identity",
+            "initiate_auth",
+            "respond_to_auth_challenge",
+            "get_id",
+            "get_credentials_for_identity",
         ):
             self.__dict__[func] = self.handle_call
 
@@ -115,6 +119,7 @@ class MockClient:
 def test_refresh(monkeypatch):
     class MyMockClient(MockClient):
         pass
+
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
     credentials = AppCredentials.load_credentials(test_path)
     credentials.refresh()
@@ -123,6 +128,7 @@ def test_refresh(monkeypatch):
 def test_early_refresh(monkeypatch):
     class MyMockClient(MockClient):
         pass
+
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
     credentials = AppCredentials.load_credentials(test_path)
     credentials.expiration = datetime.now().timestamp() + 1000
@@ -133,6 +139,7 @@ def test_early_refresh(monkeypatch):
 def test_forced_refresh(monkeypatch):
     class MyMockClient(MockClient):
         pass
+
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
     credentials = AppCredentials.load_credentials(test_path)
     credentials.expiration = datetime.now().timestamp() + 1000
