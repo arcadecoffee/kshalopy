@@ -6,13 +6,9 @@ name = "pypi"
 [packages]
 boto3 = "*"
 python-dateutil = "*"
-flake8 = "*"
 
 [dev-packages]
 coverage = "*"
-black = "*"
-moto = "*"
-pylint = "*"
 pytest = "*"
 
 [requires]
