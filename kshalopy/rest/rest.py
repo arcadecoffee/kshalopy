@@ -5,10 +5,20 @@ kshalopy/rest/rest.py
 import json
 import urllib.request
 
-from typing import List
+from enum import Enum
+from typing import Any, List
 
-from kshalopy.credentials import AppCredentials
 from kshalopy.models import Device, DeviceDetails, Home, SharedUser, User
+from kshalopy.credentials import AppCredentials
+
+
+class DeviceAction(Enum):
+    """
+    Enumeration of available device actions
+    """
+
+    LOCK = "Lock"
+    UNLOCK = "Unlock"
 
 
 class RestClient:
@@ -22,27 +32,27 @@ class RestClient:
         self.credentials = credentials
         self._source_body = json.dumps({"name": source_name, "device": source_device})
 
-    def _actuate_device(self, device: Device, action: str):
+    def _actuate_device(self, device: Device, action: DeviceAction) -> str:
         """
-
-        :param device:
-        :param action:
-        :return:
+        Internal method for lock/unlock calls with required data objects
+        :param device: device object to interact with
+        :param action: action to take on the device
+        :return: response body
         """
         selector = f"/prod_v1/devices/{device.deviceid}/status"
         request = self._build_request(selector)
         request.data = json.dumps(
-            {"action": action, "source": self._source_body}
+            {"action": action.value, "source": self._source_body}
         ).encode()
         request.method = "PATCH"
         with urllib.request.urlopen(request) as request:
-            return request.read()
+            return request.read().decode()
 
-    def _build_request(self, selector):
+    def _build_request(self, selector: str) -> urllib.request.Request:
         """
-
-        :param selector:
-        :return:
+        Construct a urllib request with required headers, etc.
+        :param selector: path / endpoint for the request
+        :return: Request object
         """
         request = urllib.request.Request(
             f"https://{self.credentials.app_config.host}{selector}"
@@ -53,13 +63,13 @@ class RestClient:
         )
         return request
 
-    def _response_to_objects(self, selector, model):
+    def _response_to_objects(self, selector: str, model: Any) -> Any:
         """
         Execute request at specified selector and convert response body into a list of
         provided type
-        :param selector:
-        :param model:
-        :return:
+        :param selector: API route to call
+        :param model: Class type to convert for response
+        :return: Object of type model
         """
         request = self._build_request(selector)
 
@@ -71,59 +81,60 @@ class RestClient:
 
     def get_devices_in_home(self, home: Home) -> List[Device]:
         """
-
-        :param home:
-        :return:
+        Get list of devices in a given Home
+        :param home: Home to query
+        :return: List of Devices
         """
         selector = f"/prod_v1/homes/{home.homeid}/devices"
         return self._response_to_objects(selector, Device)
 
     def get_device_details(self, device: Device) -> List[DeviceDetails]:
         """
-
-        :param device:
-        :return:
+        Get details of a specific device
+        :param device: Device to query
+        :return: Device details
         """
         selector = f"/prod_v1/devices/{device.deviceid}"
         return self._response_to_objects(selector, DeviceDetails)[0]
 
     def get_my_homes(self) -> List[Home]:
         """
-
-        :return:
+        Get list of Homes to which the current user is "attached"
+        :return: List of Homes
         """
         selector = "/prod_v1/users/me/homes"
         return self._response_to_objects(selector, Home)
 
     def get_my_user(self) -> User:
         """
-
-        :return:
+        Get information about the current user
+        :return: User details
         """
         selector = "/prod_v1/users/me"
         return self._response_to_objects(selector, User)[0]
 
     def get_shared_users_in_home(self, home: Home) -> List[SharedUser]:
         """
-
-        :param home:
-        :return:
+        Get users with shared access to the specified home, assuming the current user
+        is the "owner".
+        :param home: Home to query
+        :return: List of users with shared access
         """
         selector = f"/prod_v1/homes/{home.homeid}/sharedusers"
         return self._response_to_objects(selector, SharedUser)
 
-    def lock_device(self, device: Device):
+    def lock_device(self, device: Device) -> str:
         """
+        Set a device's state to "locked"
+        :param device: Device to lock
+        :return: Response body as a string (contains a count of affected devices)
+        """
+        return self._actuate_device(device, DeviceAction.LOCK)
 
-        :param device:
-        :return:
+    def unlock_device(self, device: Device) -> str:
         """
-        return self._actuate_device(device, "Lock")
-
-    def unlock_device(self, device: Device):
+        Set a device's state to "unlocked"
+        :param device: Device to lock
+        :return: Response body as a string (contains a count of affected devices)
         """
-
-        :param device:
-        :return:
-        """
-        return self._actuate_device(device, "Unlock")
+        return self._actuate_device(device, DeviceAction.UNLOCK)

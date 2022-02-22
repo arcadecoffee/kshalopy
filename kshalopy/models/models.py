@@ -11,6 +11,15 @@ from dataclasses import dataclass
 from typing import Union
 
 
+class Generic:
+    """
+    Abstract Model class
+    """
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+
+
 @dataclass
 class Device:
     """
@@ -97,6 +106,7 @@ class SharedUser:
     """
     Data-only class for Shared Users
     """
+
     sharedwithname: str = None
     sharedbyname: str = None
     useraccesslevel: str = None
