@@ -1,11 +1,12 @@
 """
 Test harness for logins
 """
-
+import json
 import logging
 import os
 import signal
 import threading
+import time
 
 import kshalopy
 
@@ -73,11 +74,16 @@ def main():
     credential_worker.start()
 
     rest_client = kshalopy.RestClient(credentials, "kshalopy_test", "kshalopy")
-    homes = rest_client.get_my_homes()
+
+    while not credentials.ttl:
+        time.sleep(1)
+
     devices = {}
-    for home in homes:
+    for home in rest_client.get_my_homes():
         for device in rest_client.get_devices_in_home(home):
             devices[device.deviceid] = device
+
+    print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
     # pass
 
 
