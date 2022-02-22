@@ -36,8 +36,7 @@ def test_save_credentials(monkeypatch):
             expected = infile.read()
 
         def write(self, content):
-            with open(test_path) as infile:
-                assert json.loads(content) == json.loads(self.expected)
+            assert json.loads(content) == json.loads(self.expected)
 
     credentials = AppCredentials.load_credentials(test_path)
     monkeypatch.setattr("builtins.open", FakeFile)
@@ -59,13 +58,17 @@ class MockClient:
         {
             "IdentityPoolId": "fake_identity_pool_id",
             "Logins": {
-                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": "fake_id_token"
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": (
+                    "fake_id_token"
+                )
             },
         },
         {
             "IdentityId": "fake_identity_id",
             "Logins": {
-                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": "fake_id_token"
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool_id": (
+                    "fake_id_token"
+                )
             },
         },
     ]

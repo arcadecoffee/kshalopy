@@ -12,7 +12,7 @@ APPSYNC_API_ENDPOINT_URL = (
 # Use JSON format string for the query. It does not need reformatting.
 query = """
     query foo {
-        getUserDevices { 
+        getUserDevices {
            deviceid devicename devicestatus
         }
     }

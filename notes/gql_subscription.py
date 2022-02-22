@@ -1,6 +1,6 @@
 # subscription_client.py
 
-from base64 import b64encode, decode
+from base64 import b64encode
 from datetime import datetime
 from uuid import uuid4
 
@@ -17,7 +17,7 @@ API_URL = (
     "https://mnlxsdywfvhoxh627qfakupckm.appsync-api.us-east-1.amazonaws.com/graphql"
 )
 
-## This is the IdToken
+# This is the IdToken
 API_KEY = input("ID Token: ")
 
 # GraphQL subscription Registration object

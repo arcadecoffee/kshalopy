@@ -1,4 +1,3 @@
-from copy import deepcopy
 from datetime import datetime
 
 from kshalopy import Config
@@ -15,7 +14,21 @@ class MockClient:
                 "CHALLENGE_NAME": "SRP_A",
                 "DEVICE_KEY": "fake_device",
                 "SECRET_HASH": "6WklTTP6NIz2Em94M0ZqlDgoitf1aK+4NiKRJ1mU5iM=",
-                "SRP_A": "29772b3d9e02c39d051aad22060afa7ffd56f689cfb6b4dbeb35822a8079f0fd1d9d4556bb59e0e5106a50307f78d5017fce6f61f872c6e1a2def7a425e0740ccda3cc5e13694bfba22e52a38f844295d5736706471228522a97c834f8df833ff9cde2cad88d311988705a1917f08d789df85aaa96ce69f0f432b597a097098078031d840c25c9613ae62cfe1a9a4ed0e854e75fdf80337dd534db4f6c01cd42e085482720d23d47cb8f5689661980fe058b2592c54d1c22ad0658efe0a0a342e8e344f74422ad3665f35d7ea185375b85ff27d2efaac8e72a856fa5f8ba069dfe6528a31e0fa889ab96f4b017305001a03f7ca7bc27e5454dd9096f51e225ca5b2a88d193ea2104bbc626680907dabb21cfc737427fde9cbe65b9b46f6ece6921a4e7185b6016250524db7e70227fec9ca0120b546ab687265a4191941b0ce3a8d1988c90abdc1c30c94426603e0d3da952efd65672815c4a6b850f716046608b9993fcb875479bfd058ce3be6733a9137c88abb8a3041e9b7fe7098fdc340f",
+                "SRP_A": (
+                    "29772b3d9e02c39d051aad22060afa7ffd56f689cfb6b4dbeb35822a8079"
+                    "f0fd1d9d4556bb59e0e5106a50307f78d5017fce6f61f872c6e1a2def7a4"
+                    "25e0740ccda3cc5e13694bfba22e52a38f844295d5736706471228522a97"
+                    "c834f8df833ff9cde2cad88d311988705a1917f08d789df85aaa96ce69f0"
+                    "f432b597a097098078031d840c25c9613ae62cfe1a9a4ed0e854e75fdf80"
+                    "337dd534db4f6c01cd42e085482720d23d47cb8f5689661980fe058b2592"
+                    "c54d1c22ad0658efe0a0a342e8e344f74422ad3665f35d7ea185375b85ff"
+                    "27d2efaac8e72a856fa5f8ba069dfe6528a31e0fa889ab96f4b017305001"
+                    "a03f7ca7bc27e5454dd9096f51e225ca5b2a88d193ea2104bbc626680907"
+                    "dabb21cfc737427fde9cbe65b9b46f6ece6921a4e7185b6016250524db7e"
+                    "70227fec9ca0120b546ab687265a4191941b0ce3a8d1988c90abdc1c30c9"
+                    "4426603e0d3da952efd65672815c4a6b850f716046608b9993fcb875479b"
+                    "fd058ce3be6733a9137c88abb8a3041e9b7fe7098fdc340f"
+                ),
                 "USERNAME": "fake_name",
             },
             "ClientId": "fake_client_id",
@@ -24,7 +37,9 @@ class MockClient:
             "ChallengeName": "PASSWORD_VERIFIER",
             "ChallengeResponses": {
                 "PASSWORD_CLAIM_SECRET_BLOCK": "fake_secret_block=",
-                "PASSWORD_CLAIM_SIGNATURE": "tN7tn9cO42beu3Qp9ANX3Oy0GOfvke07tLHUFM8ioug=",
+                "PASSWORD_CLAIM_SIGNATURE": (
+                    "tN7tn9cO42beu3Qp9ANX3Oy0GOfvke07tLHUFM8ioug="
+                ),
                 "SECRET_HASH": "6WklTTP6NIz2Em94M0ZqlDgoitf1aK+4NiKRJ1mU5iM=",
                 "TIMESTAMP": "Fri Feb 18 16:57:48 UTC 2022",
                 "USERNAME": "fake_name",
@@ -44,7 +59,9 @@ class MockClient:
         {
             "ChallengeName": "CUSTOM_CHALLENGE",
             "ChallengeResponses": {
-                "ANSWER": "answerType:verifyCode,medium:email,codeType:login,code:12345",
+                "ANSWER": (
+                    "answerType:verifyCode,medium:email,codeType:login,code:12345"
+                ),
                 "USERNAME": "fake_name",
             },
             "ClientId": "fake_client_id",
@@ -53,13 +70,17 @@ class MockClient:
         {
             "IdentityPoolId": "fake_identity_pool",
             "Logins": {
-                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool": "fake_id_token"
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool": (
+                    "fake_id_token"
+                )
             },
         },
         {
             "IdentityId": "fake_identity_id",
             "Logins": {
-                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool": "fake_id_token"
+                "cognito-idp.us-east-1.amazonaws.com/us-east-1_fake_user_pool": (
+                    "fake_id_token"
+                )
             },
         },
     ]
