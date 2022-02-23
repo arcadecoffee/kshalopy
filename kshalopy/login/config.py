@@ -1,5 +1,5 @@
 """
-kshalopy.login.config
+login/config.py
 
 Configs and constants for Kwikset Cognito SRP login process
 """

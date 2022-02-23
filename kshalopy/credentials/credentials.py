@@ -1,5 +1,5 @@
 """
-kshalopy.credentials.credentials
+credentials/credentials.py
 """
 
 # pylint: disable=R0902, R0913
@@ -15,8 +15,8 @@ from datetime import datetime
 
 import boto3
 
-from kshalopy.config import Config
-from kshalopy.utils import calculate_expiration
+from ..config import Config
+from ..utils import calculate_expiration
 
 
 @dataclass

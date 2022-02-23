@@ -1,6 +1,7 @@
 """
-kshalopy.login.login
+login/login.py
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -8,11 +9,11 @@ from enum import Enum
 
 import boto3
 
-from kshalopy.config import Config
-from kshalopy.credentials import AppCredentials
-from kshalopy.utils import calculate_expiration
+from ..config import Config
+from ..credentials import AppCredentials
+from ..utils import calculate_expiration
 
-from kshalopy.login.helper import LoginHelper
+from .helper import LoginHelper
 
 
 @dataclass

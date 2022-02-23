@@ -131,6 +131,7 @@ aws cognito-idp global-sign-out --region us-east-1  --access-token $token
 
 Realtime Client Implementation
 https://docs.aws.amazon.com/appsync/latest/devguide/aws-appsync-real-time-data.html
+https://aws.amazon.com/blogs/mobile/appsync-websockets-python/
 
 
 

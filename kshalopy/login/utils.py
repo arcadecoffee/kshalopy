@@ -1,11 +1,11 @@
 """
-kshalopy.login.utils
+login/utils.py
 """
 
 import hmac
 
-from kshalopy.login.config import CognitoHashAlgo, COGNITO_INFO_BITS
-from kshalopy.login.factor import Factor
+from .config import CognitoHashAlgo, COGNITO_INFO_BITS
+from .factor import Factor
 
 
 def get_hmac_hash(key_value: Factor, msg_value: Factor) -> bytes:

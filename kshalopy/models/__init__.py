@@ -1,12 +1,5 @@
 """
-kshalopy/models/__init__.py
+models/__init__.py
 """
 
-from kshalopy.models.models import (
-    Device,
-    DeviceDetails,
-    Generic,
-    Home,
-    SharedUser,
-    User,
-)
+from .models import Device, DeviceDetails, Generic, Home, SharedUser, User

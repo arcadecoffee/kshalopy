@@ -1,5 +1,5 @@
 """
-kshalopy/rest/rest.py
+rest/rest.py
 """
 
 import json
@@ -8,8 +8,8 @@ import urllib.request
 from enum import Enum
 from typing import Any, List
 
-from kshalopy.models import Device, DeviceDetails, Home, SharedUser, User
-from kshalopy.credentials import AppCredentials
+from ..models import Device, DeviceDetails, Home, SharedUser, User
+from ..credentials import AppCredentials
 
 
 class DeviceAction(Enum):

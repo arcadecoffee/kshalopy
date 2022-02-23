@@ -1,5 +1,5 @@
 """
-kshalopy.config.config
+config.py
 """
 
 # pylint: disable=R0902

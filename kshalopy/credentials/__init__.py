@@ -1,5 +1,6 @@
 """
-kshalopy.credentials
+credentials/__init__.py
 """
 
-from kshalopy.credentials.credentials import AppCredentials
+from .credentials import AppCredentials
+from .credentials_daemon import CredentialsDaemon

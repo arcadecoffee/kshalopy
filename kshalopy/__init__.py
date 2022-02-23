@@ -1,8 +1,8 @@
 """
-API for interfacing with Kwikset Halo devices and 'public' APIs
+__init__.py
 """
 
-from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
-from kshalopy.config import Config
-from kshalopy.credentials import AppCredentials
-from kshalopy.rest.rest import RestClient
+from .login import LoginHandler, LoginParameters, VerificationMethods
+from .config import Config
+from .credentials import AppCredentials, CredentialsDaemon
+from .rest import RestClient

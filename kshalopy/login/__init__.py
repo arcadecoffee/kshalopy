@@ -1,5 +1,5 @@
 """
-kshalopy.login
+login/__init__.py
 """
 
-from kshalopy.login.login import LoginHandler, LoginParameters, VerificationMethods
+from .login import LoginHandler, LoginParameters, VerificationMethods

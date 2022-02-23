@@ -1,5 +1,5 @@
 """
-kshalopy.login.helper
+login/helper.py
 """
 
 # pylint: disable=C0103, R0902
@@ -17,9 +17,9 @@ from os import urandom
 from sys import byteorder
 from typing import Tuple, Dict
 
-from kshalopy.login.config import CognitoHashAlgo, COGNITO_AUTH_G, COGNITO_AUTH_N
-from kshalopy.login.factor import Factor
-from kshalopy.login.utils import concat_and_hash, get_hmac_hash, hash_bytes
+from .config import CognitoHashAlgo, COGNITO_AUTH_G, COGNITO_AUTH_N
+from .factor import Factor
+from .utils import concat_and_hash, get_hmac_hash, hash_bytes
 
 
 class LoginHelper:
