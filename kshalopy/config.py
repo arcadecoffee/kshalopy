@@ -36,6 +36,7 @@ class Config:
     client_id: str
     identity_pool_id: str
     client_secret: str
+    appsync_api_url: str
 
     @classmethod
     def from_app_json(cls, json_string: str) -> Config:
@@ -54,6 +55,7 @@ class Config:
             client_id=settings["userappclientid"],
             identity_pool_id=settings["identitypoolid"],
             client_secret=settings["identityappclientsecret"],
+            appsync_api_url=settings["appsyncapiurl"],
         )
 
     @classmethod
