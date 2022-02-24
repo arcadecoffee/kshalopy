@@ -7,7 +7,6 @@ import logging
 
 from base64 import urlsafe_b64encode
 from threading import Timer
-from typing import Union
 
 from websocket import WebSocketApp
 
@@ -49,7 +48,7 @@ class RealtimeClient:
         return self.credentials.app_config.appsync_api_url[8:-8]
 
     def _on_close(self, _ws_app: WebSocketApp, status_code: int, msg: str) -> None:
-        logger.info(f"connection closed : {status_code} : {msg}")
+        logger.info("Connection closed : %s - %s", status_code, msg)
         self.active = False
 
     def _on_error(self, _ws_app: WebSocketApp, error: Exception) -> None:
@@ -57,7 +56,7 @@ class RealtimeClient:
         self.active = False
 
     def _on_message(self, _ws_app: WebSocketApp, msg: str) -> None:
-        logger.info(f"Message received: {msg}")
+        logger.info("Message received : %s", msg)
 
         msg_content = json.loads(msg)
 
@@ -71,16 +70,12 @@ class RealtimeClient:
             self.ws_app.close()
 
     def _on_open(self, _ws_app: WebSocketApp) -> None:
-        logger.info("opening connection")
+        logger.info("Opening connection")
         self.ws_app.send(json.dumps({"type": "connection_init"}))
         self.active = True
 
-    def _close(self):
-        logger.info("closing connection")
-        self.ws_app.close()
-
     def _new_timer(self) -> Timer:
-        timer = Timer(self.timeout, self._close)
+        timer = Timer(self.timeout, self.close)
         timer.daemon = True
         return timer
 
@@ -88,3 +83,19 @@ class RealtimeClient:
         self._timer.cancel()
         self._timer = self._new_timer()
         self._timer.start()
+
+    def start(self) -> None:
+        """
+        Start the WebApp...this should be done in a threading object
+        :return:
+        """
+        logger.info("Starting connection")
+        self.ws_app.run_forever()
+
+    def close(self) -> None:
+        """
+        Close the connection
+        :return:
+        """
+        logger.info("Closing connection")
+        self.ws_app.close()
