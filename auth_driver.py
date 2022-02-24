@@ -61,7 +61,7 @@ def main():
     #         devices[device.deviceid] = device
     #
     # print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
-    pass
+    # pass
 
 
 if __name__ == "__main__":
