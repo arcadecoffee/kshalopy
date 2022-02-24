@@ -25,9 +25,8 @@ class CredentialsDaemon:
         self.credentials = credentials
         self.expiration_offset = expiration_offset
         self.credentials_file = credentials_file
-        self.running = False
         self._exit_event = threading.Event()
-        self._worker = threading.Thread(target=self._refresh_credentials)
+        self._worker = threading.Thread(target=self._refresh_credentials, daemon=True)
 
         if start:
             self.start()
