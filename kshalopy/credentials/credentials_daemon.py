@@ -5,7 +5,7 @@ credentials/credentials_daemon.py
 import logging
 import threading
 
-from . import AppCredentials
+from .credentials import AppCredentials
 
 logger = logging.getLogger(__name__)
 

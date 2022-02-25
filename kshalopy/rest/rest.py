@@ -9,7 +9,8 @@ from enum import Enum
 from typing import Any, List
 
 from ..models import Device, DeviceDetails, Home, SharedUser, User
-from .. import AppCredentials, Config
+from ..credentials import AppCredentials
+from ..config import Config
 
 
 class DeviceAction(Enum):

@@ -2,8 +2,7 @@
 credentials/credentials.py
 """
 
-# pylint: disable=R0902, R0913
-# too-many-instance-attributes, too-many-arguments
+# pylint: disable=too-many-instance-attributes
 # The credential set is as long as it wants to be and no longer
 
 from __future__ import annotations
@@ -15,8 +14,8 @@ from datetime import datetime
 
 import boto3
 
-from ..config import Config
-from ..utils import calculate_expiration
+from kshalopy.config import Config
+from kshalopy.utils import calculate_expiration
 
 
 @dataclass
