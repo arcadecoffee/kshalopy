@@ -158,7 +158,9 @@ class AppCredentials(CredentialsBase):
             )
 
     @classmethod
-    def load_credentials(cls, filename: str, app_config: Config) -> AppCredentials:
+    def load_credentials(
+        cls, filename: str, app_config: Config = None
+    ) -> AppCredentials:
         """
         Load credentials from a JSON file like that created by the save method above
         :param filename: name and path for file to load

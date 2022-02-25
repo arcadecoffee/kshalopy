@@ -40,9 +40,7 @@ def main():
         credentials.save_credentials(CREDENTIALS_FILE)
 
     credential_daemon = kshalopy.CredentialsDaemon(
-        credentials=credentials,
-        credentials_file=CREDENTIALS_FILE,
-        start=True
+        credentials=credentials, credentials_file=CREDENTIALS_FILE, start=True
     )
 
     def stop_daemons(_signal, _handler):

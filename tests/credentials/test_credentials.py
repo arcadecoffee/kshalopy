@@ -6,7 +6,6 @@ from pathlib import Path
 
 from kshalopy import AppCredentials, Config
 
-test_config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
 test_path = str(Path.joinpath(Path(__file__).parent, "test_credentials.json"))
 test_path_partial = str(
     Path.joinpath(Path(__file__).parent, "test_partial_credentials.json")
@@ -14,6 +13,7 @@ test_path_partial = str(
 
 test_config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
 test_config = Config.from_app_json_file(test_config_path)
+
 
 def test_loaded_credentials():
     credentials = AppCredentials.load_credentials(test_path, test_config)
@@ -29,7 +29,7 @@ def test_loaded_credentials():
 
 
 def test_partial_loaded_credentials():
-    credentials = AppCredentials.load_credentials(test_path_partial, None)
+    credentials = AppCredentials.load_credentials(test_path_partial)
     assert not credentials.aws_credentials
     assert not credentials._app_config
     assert credentials.id_token == "fake_id_token"

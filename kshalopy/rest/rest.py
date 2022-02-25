@@ -28,7 +28,11 @@ class RestClient:
     """
 
     def __init__(
-        self, config: Config, credentials: AppCredentials, source_name: str, source_device: str
+        self,
+        config: Config,
+        credentials: AppCredentials,
+        source_name: str,
+        source_device: str,
     ):
         self.config = config
         self.credentials = credentials
@@ -56,9 +60,7 @@ class RestClient:
         :param selector: path / endpoint for the request
         :return: Request object
         """
-        request = urllib.request.Request(
-            f"https://{self.config.host}{selector}"
-        )
+        request = urllib.request.Request(f"https://{self.config.host}{selector}")
         request.add_header(
             "Authorization",
             f"{self.credentials.token_type} {self.credentials.id_token}",

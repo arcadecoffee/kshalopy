@@ -20,7 +20,7 @@ class CredentialsDaemon:
         credentials: AppCredentials,
         expiration_offset: int = 600,
         credentials_file: str = None,
-        start: bool = False
+        start: bool = False,
     ):
         self.credentials = credentials
         self.expiration_offset = expiration_offset
