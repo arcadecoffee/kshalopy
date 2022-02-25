@@ -4,16 +4,19 @@ from datetime import datetime, timezone
 from io import TextIOBase
 from pathlib import Path
 
-from kshalopy.credentials.credentials import AppCredentials
+from kshalopy import AppCredentials, Config
 
+test_config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
 test_path = str(Path.joinpath(Path(__file__).parent, "test_credentials.json"))
 test_path_partial = str(
     Path.joinpath(Path(__file__).parent, "test_partial_credentials.json")
 )
 
+test_config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
+test_config = Config.from_app_json_file(test_config_path)
 
 def test_loaded_credentials():
-    credentials = AppCredentials.load_credentials(test_path)
+    credentials = AppCredentials.load_credentials(test_path, test_config)
     assert credentials.aws_credentials.secret_key == "fake_secret_key"
     assert credentials.id_token == "fake_id_token"
     assert credentials.expiration_dt.astimezone(timezone.utc) == datetime(
@@ -26,9 +29,9 @@ def test_loaded_credentials():
 
 
 def test_partial_loaded_credentials():
-    credentials = AppCredentials.load_credentials(test_path_partial)
+    credentials = AppCredentials.load_credentials(test_path_partial, None)
     assert not credentials.aws_credentials
-    assert not credentials.app_config
+    assert not credentials._app_config
     assert credentials.id_token == "fake_id_token"
 
 
@@ -40,7 +43,7 @@ def test_save_credentials(monkeypatch):
         def write(self, content):
             assert json.loads(content) == json.loads(self.expected)
 
-    credentials = AppCredentials.load_credentials(test_path)
+    credentials = AppCredentials.load_credentials(test_path, test_config)
     monkeypatch.setattr("builtins.open", FakeFile)
     credentials.save_credentials("foo.123.json")
 
@@ -126,7 +129,7 @@ def test_refresh(monkeypatch):
         pass
 
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
-    credentials = AppCredentials.load_credentials(test_path)
+    credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.refresh()
 
 
@@ -135,7 +138,7 @@ def test_early_refresh(monkeypatch):
         pass
 
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
-    credentials = AppCredentials.load_credentials(test_path)
+    credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.expiration = datetime.now().timestamp() + 1000
     credentials.refresh()
     assert MyMockClient.call_count == -1
@@ -146,7 +149,7 @@ def test_forced_refresh(monkeypatch):
         pass
 
     monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
-    credentials = AppCredentials.load_credentials(test_path)
+    credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.expiration = datetime.now().timestamp() + 1000
     credentials.refresh(force=True)
     assert MyMockClient.call_count > -1

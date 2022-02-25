@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 
-from dataclasses import dataclass
+from dataclasses import dataclass, InitVar
 from datetime import datetime
 
 import boto3
@@ -50,8 +50,15 @@ class CredentialsBase:
         :param filename: name and path for save file
         :return: None
         """
+        data = json.dumps(
+            self,
+            indent=4,
+            default=lambda d: {
+                k: d.__dict__[k] for k in d.__dict__ if not k.startswith("_")
+            },
+        )
         with open(filename, "w", encoding="ascii") as outfile:
-            outfile.write(json.dumps(self, default=lambda o: o.__dict__, indent=4))
+            outfile.write(data)
 
 
 @dataclass
@@ -103,7 +110,8 @@ class AppCredentials(CredentialsBase):
     will auto-refresh on use if they are expired or close to expiration
     """
 
-    app_config: Config = None
+    _app_config: Config = None
+    app_config: InitVar[Config] = None
     username: str = None
     access_token: str = None
     id_token: str = None
@@ -112,12 +120,13 @@ class AppCredentials(CredentialsBase):
     lifespan: int = None
     aws_credentials: AWSCredentials = None
 
-    def __post_init__(self):
-        if self.app_config and not self.aws_credentials:
+    def __post_init__(self, app_config):
+        self._app_config = app_config
+        if self._app_config and not self.aws_credentials:
             self.aws_credentials = AWSCredentials.get_credentials(
-                region=self.app_config.region,
-                identity_pool_id=self.app_config.identity_pool_id,
-                user_pool_id=self.app_config.user_pool_id,
+                region=self._app_config.region,
+                identity_pool_id=self._app_config.identity_pool_id,
+                user_pool_id=self._app_config.user_pool_id,
                 id_token=self.id_token,
             )
 
@@ -127,9 +136,11 @@ class AppCredentials(CredentialsBase):
         :return: None
         """
         if (self.ttl < ttl_limit) or force:
-            idp_client = boto3.client("cognito-idp", region_name=self.app_config.region)
+            idp_client = boto3.client(
+                "cognito-idp", region_name=self._app_config.region
+            )
             response = idp_client.initiate_auth(
-                ClientId=self.app_config.client_id,
+                ClientId=self._app_config.client_id,
                 AuthFlow="REFRESH_TOKEN",
                 AuthParameters={
                     "CURRENT_USER": self.username,
@@ -141,23 +152,25 @@ class AppCredentials(CredentialsBase):
             self.lifespan = response["AuthenticationResult"]["ExpiresIn"]
             self.expiration = calculate_expiration(response)
             self.aws_credentials = AWSCredentials.get_credentials(
-                region=self.app_config.region,
-                identity_pool_id=self.app_config.identity_pool_id,
-                user_pool_id=self.app_config.user_pool_id,
+                region=self._app_config.region,
+                identity_pool_id=self._app_config.identity_pool_id,
+                user_pool_id=self._app_config.user_pool_id,
                 id_token=self.id_token,
             )
 
     @classmethod
-    def load_credentials(cls, filename: str) -> AppCredentials:
+    def load_credentials(cls, filename: str, app_config: Config) -> AppCredentials:
         """
         Load credentials from a JSON file like that created by the save method above
         :param filename: name and path for file to load
+        :param app_config: application configuration object
         :return: Credentials object
         """
         with open(filename, encoding="ascii") as infile:
             raw_data = json.load(infile)
-        if isinstance(raw_data.get("app_config"), dict):
-            raw_data["app_config"] = Config(**raw_data["app_config"])
-        if isinstance(raw_data.get("aws_credentials"), dict):
-            raw_data["aws_credentials"] = AWSCredentials(**raw_data["aws_credentials"])
+            raw_data["app_config"] = app_config
+            if isinstance(raw_data.get("aws_credentials"), dict):
+                raw_data["aws_credentials"] = AWSCredentials(
+                    **raw_data["aws_credentials"]
+                )
         return cls(**raw_data)

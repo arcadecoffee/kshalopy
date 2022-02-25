@@ -10,7 +10,7 @@ from threading import Timer
 
 from websocket import WebSocketApp
 
-from ..credentials import AppCredentials
+from .. import AppCredentials, Config
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,8 @@ class RealtimeClient:
     Realtime GQL subscription client
     """
 
-    def __init__(self, credentials: AppCredentials, timeout: int = 10):
+    def __init__(self, config: Config, credentials: AppCredentials, timeout: int = 10):
+        self.config = config
         self.credentials = credentials
         self.timeout = timeout
         self.active = False
@@ -38,14 +39,14 @@ class RealtimeClient:
     def _connection_url(self) -> str:
         header = {"host": self._host, "Authorization": self.credentials.id_token}
         encoded_header = urlsafe_b64encode(json.dumps(header).encode()).decode()
-        wss_url = f"wss{self.credentials.app_config.appsync_api_url[5:]}".replace(
+        wss_url = f"wss{self.config.appsync_api_url[5:]}".replace(
             ".appsync-api.", ".appsync-realtime-api."
         )
         return f"{wss_url}?header={encoded_header}&payload=e30="
 
     @property
     def _host(self) -> str:
-        return self.credentials.app_config.appsync_api_url[8:-8]
+        return self.config.appsync_api_url[8:-8]
 
     def _on_close(self, _ws_app: WebSocketApp, status_code: int, msg: str) -> None:
         logger.info("Connection closed : %s - %s", status_code, msg)

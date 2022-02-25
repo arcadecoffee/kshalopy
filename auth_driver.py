@@ -19,7 +19,7 @@ def main():
     :return:
     """
     if os.path.exists(CREDENTIALS_FILE):
-        credentials = kshalopy.AppCredentials.load_credentials(CREDENTIALS_FILE)
+        credentials = kshalopy.AppCredentials.load_credentials(CREDENTIALS_FILE, config)
     else:
         login_params = kshalopy.LoginParameters(
             username=input("Username: "),
@@ -61,7 +61,7 @@ def main():
     #         devices[device.deviceid] = device
     #
     # print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
-    # pass
+    pass  # pylint: disable=unnecessary-pass
 
 
 if __name__ == "__main__":

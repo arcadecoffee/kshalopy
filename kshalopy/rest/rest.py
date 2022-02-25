@@ -9,7 +9,7 @@ from enum import Enum
 from typing import Any, List
 
 from ..models import Device, DeviceDetails, Home, SharedUser, User
-from ..credentials import AppCredentials
+from .. import AppCredentials, Config
 
 
 class DeviceAction(Enum):
@@ -27,8 +27,9 @@ class RestClient:
     """
 
     def __init__(
-        self, credentials: AppCredentials, source_name: str, source_device: str
+        self, config: Config, credentials: AppCredentials, source_name: str, source_device: str
     ):
+        self.config = config
         self.credentials = credentials
         self._source_body = json.dumps({"name": source_name, "device": source_device})
 
@@ -55,7 +56,7 @@ class RestClient:
         :return: Request object
         """
         request = urllib.request.Request(
-            f"https://{self.credentials.app_config.host}{selector}"
+            f"https://{self.config.host}{selector}"
         )
         request.add_header(
             "Authorization",
