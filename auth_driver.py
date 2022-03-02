@@ -59,6 +59,10 @@ def main():
     #         devices[device.deviceid] = device
     #
     # print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
+    from kshalopy.realtime.realtime import RealtimeClient
+    import threading
+    rtc = RealtimeClient(config=config, credentials=credentials)
+    worker = threading.Thread(target=rtc.start, daemon=True)
     pass  # pylint: disable=unnecessary-pass
 
 

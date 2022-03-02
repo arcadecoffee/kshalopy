@@ -48,10 +48,7 @@ class RealtimeClient:
 
     @property
     def _header(self) -> Dict[str, str]:
-        return {
-            "host": self._host,
-            "Authorization": self.credentials.id_token
-        }
+        return {"host": self._host, "Authorization": self.credentials.id_token}
 
     @property
     def _host(self) -> str:
@@ -61,9 +58,11 @@ class RealtimeClient:
     def _device_subscription_query(self) -> str:
         return json.dumps(
             {
-                "query": "subscription onManageDevice { onManageDevice(email: "
-                + self.credentials.username
-                + ") { deviceid devicename devicestatus operationtype} }",
+                "query": f"""
+                    subscription onManageDevice {{
+                    onManageDevice(email: "{self.credentials.username}")
+                    {{ deviceid devicename devicestatus operationtype }} }}
+                    """,
                 "variables": {},
             }
         )
@@ -77,7 +76,7 @@ class RealtimeClient:
                     "extensions": {
                         "authorization": {
                             "host": self._host,
-                            "Authorization": self.credentials.id_token
+                            "Authorization": self.credentials.id_token,
                         }
                     },
                 },
@@ -87,12 +86,7 @@ class RealtimeClient:
 
     @staticmethod
     def _build_stop_message(subscription_id: str) -> str:
-        return json.dumps(
-            {
-                "id": subscription_id,
-                "type": "stop"
-            }
-        )
+        return json.dumps({"id": subscription_id, "type": "stop"})
 
     def _on_close(self, _ws_app: WebSocketApp, status_code: int, msg: str) -> None:
         logger.info("Connection closed : %s - %s", status_code, msg)
@@ -104,17 +98,26 @@ class RealtimeClient:
 
     def _on_message(self, _ws_app: WebSocketApp, msg: str) -> None:
         logger.info("Message received : %s", msg)
-
         msg_content = json.loads(msg)
+
         if msg_content["type"] == "connection_ack":
             self.timeout = msg_content["payload"]["connectionTimeoutMs"] / 1000
 
-            self._subscription_ids.append(uuid4())
             subscription_message = self._build_start_message(
-                self._subscription_ids[-1],
-                self._device_subscription_query
+                str(uuid4()), self._device_subscription_query
             )
             self.ws_app.send(subscription_message)
+
+        elif msg_content["type"] == "start_ack":
+            self._subscription_ids.append(msg_content["id"])
+
+        elif msg_content["type"] == "complete":
+            self._subscription_ids.remove(msg_content["id"])
+
+        elif msg_content["type"] == "data":
+            # {"id":"5a03c89b-8023-4194-ae81-50ee9cba1e86","type":"data","payload":{"data":{"onManageDevice":{"deviceid":"10ed83f37baa3f44c4","devicename":"Workshop","devicestatus":"Locked","operationtype":"UpdateDeviceStatus"}}}}
+            pass
+
         self._reset_timer()
 
         # There are other types: 'ka', 'complete', etc....
@@ -152,4 +155,6 @@ class RealtimeClient:
         logger.info("Closing connection")
         for subscription_id in self._subscription_ids:
             self.ws_app.send(self._build_stop_message(subscription_id))
+        while self._subscription_ids:
+            pass
         self.ws_app.close()
