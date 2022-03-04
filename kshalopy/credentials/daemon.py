@@ -1,6 +1,9 @@
 """
-credentials/credentials_daemon.py
+credentials/daemon.py
 """
+
+# pylint: disable=R0801
+
 
 import logging
 import threading
@@ -26,7 +29,7 @@ class CredentialsDaemon:
         self.expiration_offset = expiration_offset
         self.credentials_file = credentials_file
         self._exit_event = threading.Event()
-        self._worker = threading.Thread(target=self._refresh_credentials, daemon=True)
+        self._worker = None
 
         if start:
             self.start()
@@ -55,6 +58,7 @@ class CredentialsDaemon:
         :return: Daemon state
         """
         logger.info("Starting daemon")
+        self._worker = threading.Thread(target=self._refresh_credentials, daemon=True)
         self._worker.start()
         return self._worker.is_alive()
 

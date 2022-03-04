@@ -2,12 +2,9 @@
 Test harness for logins
 """
 
-import json
 import logging
 import os
 import signal
-import threading
-import time
 
 import kshalopy
 
@@ -47,15 +44,8 @@ def main():
         credentials=credentials, credentials_file=CREDENTIALS_FILE, start=True
     )
 
-    def stop_daemons(_signal, _handler):
-        credential_daemon.stop()
-        rtc.close()
-        worker.join()
-
-    signal.signal(signal.SIGINT, stop_daemons)
-
     while not credentials.ttl:
-        time.sleep(1)
+        pass
 
     rest_client = kshalopy.RestClient(
         config=config,
@@ -69,13 +59,20 @@ def main():
         for device in rest_client.get_devices_in_home(home):
             devices[device.deviceid] = device
 
-    print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
-
-    rtc = kshalopy.RealtimeClient(
-        config=config, credentials=credentials, devices=devices
+    realtime_daemon = kshalopy.RealtimeDaemon(
+        kshalopy.RealtimeClient(
+            config=config, credentials=credentials, devices=devices
+        ),
+        start=True,
     )
-    worker = threading.Thread(target=rtc.start, daemon=True)
-    pass  # pylint: disable=unnecessary-pass
+
+    def stop_daemons(_signal=None, _handler=None):
+        credential_daemon.stop()
+        realtime_daemon.stop()
+
+    signal.signal(signal.SIGINT, stop_daemons)
+
+    stop_daemons()
 
 
 if __name__ == "__main__":

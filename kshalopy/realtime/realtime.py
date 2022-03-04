@@ -155,6 +155,14 @@ class RealtimeClient:
         self._timer = self._new_timer()
         self._timer.start()
 
+    @property
+    def active(self) -> bool:
+        """
+        Return status of the realtime client
+        :return: Status of realtime client
+        """
+        return self.ws_app.keep_running
+
     def start(self) -> None:
         """
         Start the WebApp...this should almost always be done in a thread
