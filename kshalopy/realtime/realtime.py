@@ -164,7 +164,8 @@ class RealtimeClient:
         """
         Close the connection, blocks until connections have been closed cleanly unless
         force is set
-        :return:
+        :param force: Do not wait for subscriptions to complete before disconnecting
+        :return: None
         """
         logger.info("Closing connection")
         for subscription_id in self._subscription_ids:
