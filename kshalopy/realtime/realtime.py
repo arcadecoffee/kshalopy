@@ -115,7 +115,20 @@ class RealtimeClient:
             self._subscription_ids.remove(msg_content["id"])
 
         elif msg_content["type"] == "data":
-            # {"id":"5a03c89b-8023-4194-ae81-50ee9cba1e86","type":"data","payload":{"data":{"onManageDevice":{"deviceid":"10ed83f37baa3f44c4","devicename":"Workshop","devicestatus":"Locked","operationtype":"UpdateDeviceStatus"}}}}
+            # {
+            #   "id": "5a03c89b-8023-4194-ae81-50ee9cba1e86",
+            #   "type": "data",
+            #   "payload": {
+            #       "data": {
+            #           "onManageDevice": {
+            #               "deviceid": "10ed83f37baa3f44c4",
+            #               "devicename": "Workshop",
+            #               "devicestatus": "Locked",
+            #               "operationtype": "UpdateDeviceStatus"
+            #               }
+            #           }
+            #       }
+            #   }
             pass
 
         self._reset_timer()
@@ -141,20 +154,21 @@ class RealtimeClient:
 
     def start(self) -> None:
         """
-        Start the WebApp...this should be done in a threading object
-        :return:
+        Start the WebApp...this should almost always be done in a thread
+        :return: None
         """
         logger.info("Starting connection")
         self.ws_app.run_forever()
 
-    def close(self) -> None:
+    def close(self, force: bool = False) -> None:
         """
-        Close the connection
+        Close the connection, blocks until connections have been closed cleanly unless
+        force is set
         :return:
         """
         logger.info("Closing connection")
         for subscription_id in self._subscription_ids:
             self.ws_app.send(self._build_stop_message(subscription_id))
-        while self._subscription_ids:
+        while self._subscription_ids and not force:
             pass
         self.ws_app.close()
