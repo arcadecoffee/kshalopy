@@ -1,9 +1,13 @@
 """
 Test harness for logins
 """
+
+import json
 import logging
 import os
 import signal
+import threading
+import time
 
 import kshalopy
 
@@ -45,23 +49,31 @@ def main():
 
     def stop_daemons(_signal, _handler):
         credential_daemon.stop()
+        rtc.close()
+        worker.join()
 
     signal.signal(signal.SIGINT, stop_daemons)
 
-    # while not credentials.ttl:
-    #     time.sleep(1)
-    #
-    # rest_client = kshalopy.RestClient(credentials, "kshalopy_test", "kshalopy")
-    #
-    # devices = {}
-    # for home in rest_client.get_my_homes():
-    #     for device in rest_client.get_devices_in_home(home):
-    #         devices[device.deviceid] = device
-    #
-    # print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
-    from kshalopy.realtime.realtime import RealtimeClient
-    import threading
-    rtc = RealtimeClient(config=config, credentials=credentials)
+    while not credentials.ttl:
+        time.sleep(1)
+
+    rest_client = kshalopy.RestClient(
+        config=config,
+        credentials=credentials,
+        source_name="kshalopy_test",
+        source_device="kshalopy",
+    )
+
+    devices = {}
+    for home in rest_client.get_my_homes():
+        for device in rest_client.get_devices_in_home(home):
+            devices[device.deviceid] = device
+
+    print(json.dumps([ob.__dict__ for ob in devices.values()], indent=4))
+
+    rtc = kshalopy.RealtimeClient(
+        config=config, credentials=credentials, devices=devices
+    )
     worker = threading.Thread(target=rtc.start, daemon=True)
     pass  # pylint: disable=unnecessary-pass
 

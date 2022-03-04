@@ -6,13 +6,16 @@ import json
 import logging
 
 from base64 import urlsafe_b64encode
+from datetime import datetime
 from threading import Timer
 from typing import Dict
 from uuid import uuid4
 
 from websocket import WebSocketApp
 
-from .. import AppCredentials, Config
+from ..config import Config
+from ..credentials import AppCredentials
+from ..models import Device
 
 logger = logging.getLogger(__name__)
 
@@ -22,11 +25,16 @@ class RealtimeClient:
     Realtime GQL subscription client
     """
 
-    def __init__(self, config: Config, credentials: AppCredentials, timeout: int = 10):
+    def __init__(
+        self,
+        config: Config,
+        credentials: AppCredentials,
+        devices: Dict[str, Device] = None,
+        timeout: int = 10,
+    ):
         self.config = config
         self.credentials = credentials
         self.timeout = timeout
-        self.active = False
         self.ws_app = WebSocketApp(
             self._connection_url,
             subprotocols=["graphql-ws"],
@@ -35,6 +43,7 @@ class RealtimeClient:
             on_message=self._on_message,
             on_open=self._on_open,
         )
+        self._devices = devices if devices else {}
         self._subscription_ids = []
         self._timer = self._new_timer()
 
@@ -88,13 +97,13 @@ class RealtimeClient:
     def _build_stop_message(subscription_id: str) -> str:
         return json.dumps({"id": subscription_id, "type": "stop"})
 
-    def _on_close(self, _ws_app: WebSocketApp, status_code: int, msg: str) -> None:
+    @staticmethod
+    def _on_close(_ws_app: WebSocketApp, status_code: int, msg: str) -> None:
         logger.info("Connection closed : %s - %s", status_code, msg)
-        self.active = False
 
-    def _on_error(self, _ws_app: WebSocketApp, error: Exception) -> None:
+    @staticmethod
+    def _on_error(_ws_app: WebSocketApp, error: Exception) -> None:
         logger.error(error)
-        self.active = False
 
     def _on_message(self, _ws_app: WebSocketApp, msg: str) -> None:
         logger.info("Message received : %s", msg)
@@ -114,22 +123,17 @@ class RealtimeClient:
         elif msg_content["type"] == "complete":
             self._subscription_ids.remove(msg_content["id"])
 
-        elif msg_content["type"] == "data":
-            # {
-            #   "id": "5a03c89b-8023-4194-ae81-50ee9cba1e86",
-            #   "type": "data",
-            #   "payload": {
-            #       "data": {
-            #           "onManageDevice": {
-            #               "deviceid": "10ed83f37baa3f44c4",
-            #               "devicename": "Workshop",
-            #               "devicestatus": "Locked",
-            #               "operationtype": "UpdateDeviceStatus"
-            #               }
-            #           }
-            #       }
-            #   }
-            pass
+        elif (
+            msg_content["type"] == "data"
+            and msg_content["id"] in self._subscription_ids
+        ):
+            device_id = msg_content["payload"]["data"]["onManageDevice"]["deviceid"]
+            status = msg_content["payload"]["data"]["onManageDevice"]["devicestatus"]
+            if device_id in self._devices:
+                self._devices[device_id].lockstatus = status
+                self._devices[device_id].lastupdatestatus = int(
+                    datetime.now().timestamp()
+                )
 
         self._reset_timer()
 
@@ -140,7 +144,6 @@ class RealtimeClient:
     def _on_open(self, _ws_app: WebSocketApp) -> None:
         logger.info("Opening connection")
         self.ws_app.send(json.dumps({"type": "connection_init"}))
-        self.active = True
 
     def _new_timer(self) -> Timer:
         timer = Timer(self.timeout, self.close)
