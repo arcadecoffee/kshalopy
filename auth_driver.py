@@ -5,10 +5,12 @@ Test harness for logins
 import logging
 import os
 import signal
+import time
 
 import kshalopy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s:" + logging.BASIC_FORMAT)
+logger = logging.getLogger(__name__)
 
 CREDENTIALS_FILE = "test-user.credentials.secret.json"
 
@@ -45,7 +47,8 @@ def main():
     )
 
     while not credentials.ttl:
-        pass
+        logger.info("Waiting for fresh credentials")
+        time.sleep(1)
 
     rest_client = kshalopy.RestClient(
         config=config,

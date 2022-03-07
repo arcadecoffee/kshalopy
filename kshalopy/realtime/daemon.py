@@ -2,8 +2,6 @@
 realtime/daemon.py
 """
 
-# pylint: disable=R0801
-
 
 import logging
 import threading

@@ -7,16 +7,6 @@ models/models.py
 # The models are as big as they are and no smaller; these are all dataclasses
 
 from dataclasses import dataclass
-from typing import Union
-
-
-class Generic:
-    """
-    Abstract Model class
-    """
-
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
 
 
 @dataclass
@@ -88,17 +78,13 @@ class Home:
     homeid: str
     isshared: bool = None
     useraccesslevelstatus: str = None
-    createddate: Union[str, int] = None
+    createddate: str = None
     sharedwithname: str = None
     ownername: str = None
     homename: str = None
     useraccesslevel: str = None
     sharedbyname: str = None
     email: str = None
-
-    def __post_init__(self):
-        if isinstance(self.createddate, str):
-            self.createddate = int(self.createddate)
 
 
 @dataclass

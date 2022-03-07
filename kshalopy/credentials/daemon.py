@@ -2,8 +2,6 @@
 credentials/daemon.py
 """
 
-# pylint: disable=R0801
-
 
 import logging
 import threading
@@ -36,20 +34,18 @@ class CredentialsDaemon:
 
     def _refresh_credentials(self):
         logger.info("Daemon started")
-        while True:
-            if self.credentials.ttl < self.expiration_offset:
-                logger.info("Getting fresh credentials")
-                self.credentials.refresh()
-                if self.credentials_file:
-                    self.credentials.save_credentials(self.credentials_file)
-                logger.info(
-                    "Got fresh credentials - exp: %s",
-                    self.credentials.expiration_dt.isoformat(),
-                )
-            if self._exit_event.wait(
+        while not self._exit_event.wait(
                 timeout=(self.credentials.ttl - self.expiration_offset)
-            ):
-                break
+        ):
+            logger.info("Getting fresh credentials")
+            self.credentials.refresh()
+            if self.credentials_file:
+                logger.info("Saving fresh credentials to %s", self.credentials_file)
+                self.credentials.save_credentials(self.credentials_file)
+            logger.info(
+                "Got fresh credentials - exp: %s",
+                self.credentials.expiration_dt.isoformat(),
+            )
         logger.info("Daemon stopped")
 
     def start(self) -> bool:
