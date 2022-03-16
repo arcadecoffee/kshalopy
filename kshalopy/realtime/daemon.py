@@ -22,12 +22,12 @@ class RealtimeDaemon:
         start: bool = False
     ):
         self._client = client
-        self._worker = None
+        self._worker = threading.Thread(target=self._client.start, daemon=True)
 
         if start:
             self.start()
 
-    def start(self):
+    def start(self) -> bool:
         """
         Start the daemon thread
         :return: Daemon state
@@ -47,7 +47,7 @@ class RealtimeDaemon:
             self._client.close()
             logger.info("Waiting for daemon to stop")
             self._worker.join()
-        return self._worker.is_alive()
+        return not self._worker.is_alive()
 
     @property
     def is_running(self) -> bool:

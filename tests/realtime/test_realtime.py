@@ -2,8 +2,6 @@ import json
 import re
 import threading
 
-import pytest
-
 import kshalopy
 from kshalopy.models import Device
 
