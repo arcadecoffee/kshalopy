@@ -41,6 +41,7 @@ def test_start():
     assert client.call_count.get("close", 0) == 0
     daemon.stop()
 
+
 def test_start_stop():
     client = MockRealtimeClient()
     daemon = RealtimeDaemon(client)
