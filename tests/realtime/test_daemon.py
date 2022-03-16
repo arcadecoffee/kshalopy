@@ -29,6 +29,7 @@ def test_auto_start():
     assert daemon.is_running
     assert client.call_count.get("start", 0) == 1
     assert client.call_count.get("close", 0) == 0
+    daemon.stop()
 
 
 def test_start():
@@ -38,7 +39,7 @@ def test_start():
     assert daemon.is_running
     assert client.call_count.get("start", 0) == 1
     assert client.call_count.get("close", 0) == 0
-
+    daemon.stop()
 
 def test_start_stop():
     client = MockRealtimeClient()

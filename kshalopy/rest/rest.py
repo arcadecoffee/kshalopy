@@ -75,9 +75,7 @@ class RestClient:
         :param model: Class type to convert for response
         :return: Object of type model
         """
-        request = self._build_request(selector)
-
-        with urllib.request.urlopen(request) as request:
+        with urllib.request.urlopen(self._build_request(selector)) as request:
             response_body = request.read()
             response_dict = json.loads(response_body.decode())
             objects = [model(**item) for item in response_dict["data"]]
@@ -92,7 +90,7 @@ class RestClient:
         selector = f"/prod_v1/homes/{home.homeid}/devices"
         return self._response_to_objects(selector, Device)
 
-    def get_device_details(self, device: Device) -> List[DeviceDetails]:
+    def get_device_details(self, device: Device) -> DeviceDetails:
         """
         Get details of a specific device
         :param device: Device to query
