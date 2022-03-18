@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from kshalopy.realtime.daemon import RealtimeDaemon
 
 
