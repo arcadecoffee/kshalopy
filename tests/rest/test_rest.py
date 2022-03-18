@@ -2,7 +2,10 @@ import json
 
 from pathlib import Path
 
-from kshalopy.rest.rest import AppCredentials, Config, Device, Home, RestClient
+from src.kshalopy import AppCredentials, Config, RestClient
+# from config import Config
+# from credentials import AppCredentials
+from models.models import Device, Home
 
 config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
 config = Config.from_app_json_file(config_path)
@@ -70,7 +73,7 @@ def get_patched_client(monkeypatch):
         def __exit__(self, exc_type, exc_val, exc_tb):
             pass
 
-    monkeypatch.setattr("kshalopy.rest.rest.urllib.request.urlopen", MockURLOpen)
+    monkeypatch.setattr("src.kshalopy.rest.rest.urllib.request.urlopen", MockURLOpen)
     return RestClient(config, credentials, "fake_name", "fake_device")
 
 

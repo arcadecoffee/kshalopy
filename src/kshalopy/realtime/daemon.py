@@ -6,7 +6,7 @@ realtime/daemon.py
 import logging
 import threading
 
-from .realtime import RealtimeClient
+from src.kshalopy.realtime.realtime import RealtimeClient
 
 logger = logging.getLogger(__name__)
 

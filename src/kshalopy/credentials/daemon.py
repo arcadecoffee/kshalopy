@@ -6,7 +6,7 @@ credentials/daemon.py
 import logging
 import threading
 
-from .credentials import AppCredentials
+from src.kshalopy.credentials.credentials import AppCredentials
 
 logger = logging.getLogger(__name__)
 

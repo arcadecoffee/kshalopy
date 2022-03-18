@@ -1,12 +1,11 @@
 import time
 import tempfile
-import os
 
 from datetime import datetime
 from pathlib import Path
 
-from kshalopy.config import Config
-from kshalopy.credentials import AppCredentials, CredentialsDaemon
+from config import Config
+from src.kshalopy import AppCredentials, CredentialsDaemon
 
 
 TEST_CYCLE_TIME = 3

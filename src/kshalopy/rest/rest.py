@@ -8,9 +8,9 @@ import urllib.request
 from enum import Enum
 from typing import Any, List
 
-from ..models import Device, DeviceDetails, Home, SharedUser, User
-from ..credentials import AppCredentials
-from ..config import Config
+from src.kshalopy.models.models import Device, DeviceDetails, Home, SharedUser, User
+from src.kshalopy.credentials.credentials import AppCredentials
+from src.kshalopy.config import Config
 
 
 class DeviceAction(Enum):

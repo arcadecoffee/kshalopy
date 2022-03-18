@@ -2,11 +2,10 @@ import json
 import re
 import threading
 
-import kshalopy
-from kshalopy.models import Device
+from src.kshalopy import AppCredentials, Config, RealtimeClient
+from models.models import Device
 
-
-config = kshalopy.Config(
+config = Config(
     host="fake.execute-api.us-east-1.amazonaws.fake",
     port=443,
     use_ssl=True,
@@ -18,7 +17,7 @@ config = kshalopy.Config(
     appsync_api_url="https://fake.appsync-api.us-east-1.amazonaws.fake/graphql",
 )
 
-credentials = kshalopy.AppCredentials()
+credentials = AppCredentials()
 
 
 def normalize(data: str) -> str:
@@ -26,7 +25,7 @@ def normalize(data: str) -> str:
 
 
 def test_realtime_client_url():
-    realtime_client = kshalopy.RealtimeClient(
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices={}
     )
     assert (
@@ -92,9 +91,9 @@ def test_realtime_subscription_flow(monkeypatch):
         def close(self):
             self.on_close(self, 42, "42")
 
-    monkeypatch.setattr("kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
-    monkeypatch.setattr("kshalopy.realtime.realtime.uuid4", lambda: "42")
-    realtime_client = kshalopy.RealtimeClient(
+    monkeypatch.setattr("src.kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
+    monkeypatch.setattr("src.kshalopy.realtime.realtime.uuid4", lambda: "42")
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices={}
     )
     realtime_client.start()
@@ -106,7 +105,7 @@ def test_realtime_data_message():
     devices = {
         "fake_device_id": Device("fake_device_id")
     }
-    realtime_client = kshalopy.RealtimeClient(
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
     realtime_client._subscription_ids.append("42")
@@ -130,7 +129,7 @@ def test_unknown_message_type():
     devices = {
         "fake_device_id": Device("fake_device_id")
     }
-    realtime_client = kshalopy.RealtimeClient(
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
     realtime_client._subscription_ids.append("42")
@@ -154,7 +153,7 @@ def test_unknown_device():
     devices = {
         "fake_device_id": Device("fake_device_id")
     }
-    realtime_client = kshalopy.RealtimeClient(
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
     realtime_client._subscription_ids.append("42")
@@ -185,8 +184,8 @@ def test_close(monkeypatch):
         def send(self, msg):
             pass
 
-    monkeypatch.setattr("kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
-    realtime_client = kshalopy.RealtimeClient(
+    monkeypatch.setattr("src.kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices={}
     )
     realtime_client._subscription_ids.append("42")
@@ -197,7 +196,7 @@ def test_close(monkeypatch):
 
 
 def test_error():
-    realtime_client = kshalopy.RealtimeClient(
+    realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices={}
     )
     realtime_client._on_error(realtime_client.ws_app, Exception("FOO"))

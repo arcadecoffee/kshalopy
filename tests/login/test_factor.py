@@ -1,4 +1,4 @@
-from kshalopy.login.factor import Factor
+from src.kshalopy.login.factor import Factor
 
 
 def test_int_declaration():

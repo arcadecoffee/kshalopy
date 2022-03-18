@@ -13,9 +13,9 @@ from uuid import uuid4
 
 from websocket import WebSocketApp
 
-from ..config import Config
-from ..credentials import AppCredentials
-from ..models import Device
+from src.kshalopy.config import Config
+from src.kshalopy.credentials.credentials import AppCredentials
+from src.kshalopy.models.models import Device
 
 logger = logging.getLogger(__name__)
 

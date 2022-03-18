@@ -7,7 +7,7 @@ import os
 import signal
 import time
 
-import kshalopy
+from src import kshalopy
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s:" + logging.BASIC_FORMAT)
 logger = logging.getLogger(__name__)
