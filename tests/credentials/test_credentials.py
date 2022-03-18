@@ -4,8 +4,7 @@ from datetime import datetime, timezone
 from io import TextIOBase
 from pathlib import Path
 
-from config import Config
-from src.kshalopy import AppCredentials
+from src.kshalopy import AppCredentials, Config
 
 test_path = str(Path.joinpath(Path(__file__).parent, "test_credentials.json"))
 test_path_partial = str(

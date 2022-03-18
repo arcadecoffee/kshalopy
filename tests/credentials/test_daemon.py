@@ -4,8 +4,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 
-from config import Config
-from src.kshalopy import AppCredentials, CredentialsDaemon
+from src.kshalopy import AppCredentials, Config, CredentialsDaemon
 
 
 TEST_CYCLE_TIME = 3

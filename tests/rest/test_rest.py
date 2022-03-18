@@ -3,9 +3,7 @@ import json
 from pathlib import Path
 
 from src.kshalopy import AppCredentials, Config, RestClient
-# from config import Config
-# from credentials import AppCredentials
-from models.models import Device, Home
+from src.kshalopy.models.models import Device, Home
 
 config_path = str(Path.joinpath(Path(__file__).parent, "test_config.json"))
 config = Config.from_app_json_file(config_path)

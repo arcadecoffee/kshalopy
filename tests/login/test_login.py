@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from config import Config
-from src.kshalopy.login.login import LoginHandler, LoginParameters, VerificationMethods
+from src.kshalopy import Config, LoginHandler, LoginParameters, VerificationMethods
 
 
 class MockClient:

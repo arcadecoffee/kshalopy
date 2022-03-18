@@ -3,7 +3,7 @@ import re
 import threading
 
 from src.kshalopy import AppCredentials, Config, RealtimeClient
-from models.models import Device
+from src.kshalopy.models.models import Device
 
 config = Config(
     host="fake.execute-api.us-east-1.amazonaws.fake",

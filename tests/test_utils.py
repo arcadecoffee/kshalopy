@@ -1,4 +1,4 @@
-from utils import calculate_expiration, date_string_to_timestamp
+from src.kshalopy.utils import calculate_expiration, date_string_to_timestamp
 
 
 def test_date_string_to_timestamp():
