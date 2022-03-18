@@ -14,7 +14,7 @@ TEST_CYCLE_TIME = 3
 
 class MockAppCredentials(AppCredentials):
     def refresh(self, ttl_limit: int = 900, force: bool = False) -> None:
-        self.expiration = datetime.now().timestamp() + TEST_CYCLE_TIME
+        self.expiration = int(datetime.now().timestamp()) + TEST_CYCLE_TIME
 
 
 test_config = Config.from_app_json_file(
