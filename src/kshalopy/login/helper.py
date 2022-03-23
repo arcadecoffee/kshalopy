@@ -17,9 +17,9 @@ from os import urandom
 from sys import byteorder
 from typing import Tuple, Dict
 
-from src.kshalopy.login.config import CognitoHashAlgo, COGNITO_AUTH_G, COGNITO_AUTH_N
-from src.kshalopy.login.factor import Factor
-from src.kshalopy.login.utils import concat_and_hash, get_hmac_hash, hash_bytes
+from ..login.config import CognitoHashAlgo, COGNITO_AUTH_G, COGNITO_AUTH_N
+from ..login.factor import Factor
+from ..login.utils import concat_and_hash, get_hmac_hash, hash_bytes
 
 
 class LoginHelper:

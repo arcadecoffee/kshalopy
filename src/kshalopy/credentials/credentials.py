@@ -14,8 +14,8 @@ from datetime import datetime
 
 import boto3
 
-from src.kshalopy.config import Config
-from src.kshalopy.utils import calculate_expiration
+from ..config import Config
+from ..utils import calculate_expiration
 
 
 @dataclass

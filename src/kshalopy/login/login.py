@@ -9,11 +9,11 @@ from enum import Enum
 
 import boto3
 
-from src.kshalopy.config import Config
-from src.kshalopy.credentials.credentials import AppCredentials
-from src.kshalopy.utils import calculate_expiration
+from ..config import Config
+from ..credentials.credentials import AppCredentials
+from ..utils import calculate_expiration
 
-from src.kshalopy.login.helper import LoginHelper
+from ..login.helper import LoginHelper
 
 
 @dataclass
