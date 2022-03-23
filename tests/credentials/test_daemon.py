@@ -52,6 +52,7 @@ def test_credential_file_write():
     daemon.start()
     time.sleep(1)
     daemon.stop()
+    time.sleep(1)
     new_credentials = AppCredentials.load_credentials(test_file)
     assert TEST_CYCLE_TIME > test_credentials.ttl > 0
     assert new_credentials.expiration == test_credentials.expiration
