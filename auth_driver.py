@@ -75,7 +75,8 @@ def main():
 
     signal.signal(signal.SIGINT, stop_daemons)
 
-    stop_daemons()
+    while credential_daemon.is_running or realtime_daemon.is_running:
+        pass
 
 
 if __name__ == "__main__":
