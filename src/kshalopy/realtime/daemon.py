@@ -16,11 +16,7 @@ class RealtimeDaemon:
     Daemon for running the realtime sync interface in a background thread
     """
 
-    def __init__(
-        self,
-        client: RealtimeClient,
-        start: bool = False
-    ):
+    def __init__(self, client: RealtimeClient, start: bool = False):
         self._client = client
         self._worker = threading.Thread(target=self._client.start, daemon=True)
 

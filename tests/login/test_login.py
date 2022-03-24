@@ -197,6 +197,7 @@ def test_login_flow_with_secret(monkeypatch):
 def test_login_flow_without_secret(monkeypatch):
     class MyMockClient(MockClient):
         call_count = -1
+
     del MyMockClient.arg_sets[0]["AuthParameters"]["SECRET_HASH"]
     del MyMockClient.arg_sets[1]["ChallengeResponses"]["SECRET_HASH"]
 

@@ -35,7 +35,7 @@ class CredentialsDaemon:
     def _refresh_credentials(self):
         logger.info("Daemon started")
         while not self._exit_event.wait(
-                timeout=(self.credentials.ttl - self.expiration_offset)
+            timeout=(self.credentials.ttl - self.expiration_offset)
         ):
             logger.info("Getting fresh credentials")
             self.credentials.refresh()

@@ -1,6 +1,0 @@
-[SIMILARITIES]
-# Signatures are removed from the similarity computation
-ignore-signatures=yes
-
-[MESSAGES CONTROL]
-disable=relative-beyond-top-level

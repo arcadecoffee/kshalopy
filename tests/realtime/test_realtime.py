@@ -25,9 +25,7 @@ def normalize(data: str) -> str:
 
 
 def test_realtime_client_url():
-    realtime_client = RealtimeClient(
-        config=config, credentials=credentials, devices={}
-    )
+    realtime_client = RealtimeClient(config=config, credentials=credentials, devices={})
     assert (
         realtime_client.ws_app.url
         == "wss://fake.appsync-realtime-api.us-east-1.amazonaws.fake/graphql?header=eyJob3N0IjogImZha2UuYXBwc3luYy1hcGkudXMtZWFzdC0xLmFtYXpvbmF3cy5mYWtlIiwgIkF1dGhvcml6YXRpb24iOiBudWxsfQ==&payload=e30="
@@ -61,7 +59,7 @@ def test_realtime_subscription_flow(monkeypatch):
                 },
                 "type": "start",
             },
-            {"id": "42", "type": "stop"}
+            {"id": "42", "type": "stop"},
         ]
 
         messages_received = [
@@ -93,18 +91,14 @@ def test_realtime_subscription_flow(monkeypatch):
 
     monkeypatch.setattr("src.kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
     monkeypatch.setattr("src.kshalopy.realtime.realtime.uuid4", lambda: "42")
-    realtime_client = RealtimeClient(
-        config=config, credentials=credentials, devices={}
-    )
+    realtime_client = RealtimeClient(config=config, credentials=credentials, devices={})
     realtime_client.start()
     assert realtime_client.active
     realtime_client.close()
 
 
 def test_realtime_data_message():
-    devices = {
-        "fake_device_id": Device("fake_device_id")
-    }
+    devices = {"fake_device_id": Device("fake_device_id")}
     realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
@@ -116,19 +110,17 @@ def test_realtime_data_message():
             "data": {
                 "onManageDevice": {
                     "deviceid": "fake_device_id",
-                    "devicestatus": "Locked"
+                    "devicestatus": "Locked",
                 }
             }
-        }
+        },
     }
     realtime_client._on_message(realtime_client.ws_app, json.dumps(msg))
     assert devices["fake_device_id"].lockstatus == "Locked"
 
 
 def test_unknown_message_type():
-    devices = {
-        "fake_device_id": Device("fake_device_id")
-    }
+    devices = {"fake_device_id": Device("fake_device_id")}
     realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
@@ -140,19 +132,17 @@ def test_unknown_message_type():
             "data": {
                 "onManageDevice": {
                     "deviceid": "fake_device_id",
-                    "devicestatus": "Locked"
+                    "devicestatus": "Locked",
                 }
             }
-        }
+        },
     }
     realtime_client._on_message(realtime_client.ws_app, json.dumps(msg))
     assert not devices["fake_device_id"].lockstatus
 
 
 def test_unknown_device():
-    devices = {
-        "fake_device_id": Device("fake_device_id")
-    }
+    devices = {"fake_device_id": Device("fake_device_id")}
     realtime_client = RealtimeClient(
         config=config, credentials=credentials, devices=devices
     )
@@ -164,10 +154,10 @@ def test_unknown_device():
             "data": {
                 "onManageDevice": {
                     "deviceid": "other_fake_device_id",
-                    "devicestatus": "Locked"
+                    "devicestatus": "Locked",
                 }
             }
-        }
+        },
     }
     realtime_client._on_message(realtime_client.ws_app, json.dumps(msg))
     assert not devices["fake_device_id"].lockstatus
@@ -185,9 +175,7 @@ def test_close(monkeypatch):
             pass
 
     monkeypatch.setattr("src.kshalopy.realtime.realtime.WebSocketApp", MockWebsocketApp)
-    realtime_client = RealtimeClient(
-        config=config, credentials=credentials, devices={}
-    )
+    realtime_client = RealtimeClient(config=config, credentials=credentials, devices={})
     realtime_client._subscription_ids.append("42")
     t = threading.Thread(target=realtime_client.close)
     t.start()
@@ -196,7 +184,5 @@ def test_close(monkeypatch):
 
 
 def test_error():
-    realtime_client = RealtimeClient(
-        config=config, credentials=credentials, devices={}
-    )
+    realtime_client = RealtimeClient(config=config, credentials=credentials, devices={})
     realtime_client._on_error(realtime_client.ws_app, Exception("FOO"))

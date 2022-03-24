@@ -1,0 +1,13 @@
+## Module requirements
+boto3
+python-dateutil
+websocket-client
+
+## Development and testing requirements
+coverage
+pytest
+pylint
+# build
+# twine
+# black
+# flake8
