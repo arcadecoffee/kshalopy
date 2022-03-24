@@ -9,5 +9,4 @@ pytest
 pylint
 build
 twine
-black
 flake8
