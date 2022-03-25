@@ -37,8 +37,9 @@ class Factor:
     def pad_hex(value: str) -> str:
         """
         Pad a hexadecimal value as required by AWS Cognito SRP protocol.
+        
         :param value: value to pad (if needed)
-        :returns: padding compliant value
+        :return: padding compliant value
         """
         if len(value) % 2 == 1:
             value = f"0{value}"

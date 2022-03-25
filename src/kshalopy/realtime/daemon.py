@@ -26,7 +26,8 @@ class RealtimeDaemon:
     def start(self) -> bool:
         """
         Start the daemon thread
-        :returns: Daemon state
+        
+        :return: Daemon state
         """
         logger.info("Starting daemon")
         self._worker = threading.Thread(target=self._client.start, daemon=True)
@@ -36,7 +37,8 @@ class RealtimeDaemon:
     def stop(self) -> bool:
         """
         Stop the daemon thread
-        :returns: Daemon state
+        
+        :return: Daemon state
         """
         logger.info("Stopping daemon")
         if self._client.active:
@@ -49,6 +51,7 @@ class RealtimeDaemon:
     def is_running(self) -> bool:
         """
         Return state of daemon
-        :returns:
+        
+        :return:
         """
         return self._worker.is_alive()

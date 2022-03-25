@@ -30,7 +30,8 @@ class CredentialsBase:
     def expiration_dt(self) -> datetime:
         """
         Return expiration as datetime object
-        :returns: expiration datetime
+        
+        :return: expiration datetime
         """
         return datetime.fromtimestamp(self.expiration)
 
@@ -38,7 +39,8 @@ class CredentialsBase:
     def ttl(self) -> float:
         """
         Return time, in seconds, until expiration of current access and ID token
-        :returns: time until expiration
+        
+        :return: time until expiration
         """
         ttl = self.expiration - datetime.now().timestamp()
         return 0 if ttl <= 0 else ttl
@@ -46,8 +48,10 @@ class CredentialsBase:
     def save_credentials(self, filename: str) -> None:
         """
         Save current credentials for future use to a JSON file
+        
         :param filename: name and path for save file
-        :returns: None
+
+        :return: None
         """
         data = json.dumps(
             self,
@@ -77,11 +81,13 @@ class AWSCredentials(CredentialsBase):
     ) -> AWSCredentials:
         """
         Retrieve AWS identities and IAM access tokens for Cognito user
+        
         :param region:
         :param identity_pool_id:
         :param user_pool_id:
         :param id_token:
-        :returns:
+        
+        :return:
         """
         logins = {
             f"cognito-idp.{region}.amazonaws.com/{region}_{user_pool_id}": id_token
@@ -132,7 +138,8 @@ class AppCredentials(CredentialsBase):
     def refresh(self, ttl_limit: int = 900, force: bool = False) -> None:
         """
         Use the refresh token to get new access and ID tokens
-        :returns: None
+        
+        :return: None
         """
         if (self.ttl < ttl_limit) or force:
             idp_client = boto3.client(
@@ -163,9 +170,10 @@ class AppCredentials(CredentialsBase):
     ) -> AppCredentials:
         """
         Load credentials from a JSON file like that created by the save method above
+
         :param filename: name and path for file to load
         :param app_config: application configuration object
-        :returns: Credentials object
+        :return: Credentials object
         """
         with open(filename, encoding="ascii") as infile:
             raw_data = json.load(infile)

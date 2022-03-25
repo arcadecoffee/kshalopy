@@ -63,7 +63,8 @@ class LoginHandler:
 
         Exceptions will be raised by the Cognito client if the username and password
         are invalid.
-        :returns: None
+        
+        :return: None
         """
         auth_helper = LoginHelper(
             login_params=self.login_params, app_config=self.app_config
@@ -109,8 +110,9 @@ class LoginHandler:
 
         An exception will be raised by the Cognito client if the verification code is
         invalid.
+        
         :param code: code received via specified verification method
-        :returns: None
+        :return: None
         """
         answer = ",".join(
             [

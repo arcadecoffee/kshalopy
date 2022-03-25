@@ -32,8 +32,9 @@ class LoginHelper:
     def generate_random(size: int) -> Factor:
         """
         Generate random bytes of specified size
+        
         :param size: length of random value in bytes
-        :returns: random value as a Factor
+        :return: random value as a Factor
         """
         return Factor(int_value=int.from_bytes(urandom(size), byteorder))
 
@@ -41,10 +42,11 @@ class LoginHelper:
     def get_secret_hash(username: str, client_id: str, client_secret: str) -> str:
         """
         Calculate secret hash as required by Cognito SRP
+        
         :param username: username
         :param client id: client id
         :param client_secret: client secret
-        :returns: hash string
+        :return: hash string
         """
         message = (username + client_id).encode()
         hmac_obj = hmac.new(client_secret.encode(), message, CognitoHashAlgo)
@@ -74,7 +76,8 @@ class LoginHelper:
     def _calculate_a_values(self) -> Tuple[Factor, Factor]:
         """
         Calculate 'a' values for Cognito SRP protocol
-        :returns: (small 'a', big 'a')
+        
+        :return: (small 'a', big 'a')
         """
         A = a = 0
         while A % self.N.int == 0:
@@ -99,8 +102,9 @@ class LoginHelper:
         """
         Produces the correct response to the challenge received from the server during
         the authentication / login process.
+        
         :param challenge_parameters: from the authentication server
-        :returns: response to challenge
+        :return: response to challenge
         """
         internal_username = challenge_parameters["USERNAME"]
         user_id_for_srp = challenge_parameters["USER_ID_FOR_SRP"]
