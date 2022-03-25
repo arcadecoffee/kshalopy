@@ -51,7 +51,7 @@ class CredentialsDaemon:
     def start(self) -> bool:
         """
         Start the daemon thread
-        :return: Daemon state
+        :returns: Daemon state
         """
         logger.info("Starting daemon")
         self._worker = threading.Thread(target=self._refresh_credentials, daemon=True)
@@ -61,7 +61,7 @@ class CredentialsDaemon:
     def stop(self) -> bool:
         """
         Stop the daemon thread
-        :return: Daemon state
+        :returns: Daemon state
         """
         logger.info("Stopping daemon")
         self._exit_event.set()
@@ -73,6 +73,6 @@ class CredentialsDaemon:
     def is_running(self) -> bool:
         """
         Return state of daemon
-        :return:
+        :returns:
         """
         return self._worker.is_alive()

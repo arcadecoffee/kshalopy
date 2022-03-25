@@ -42,8 +42,10 @@ class Config:
     def from_app_json(cls, json_string: str) -> Config:
         """
         Create a Config object from a JSON string
+
         :param json_string: JSON string to parse
-        :return: Config object
+
+        :returns: Config object
         """
         settings = json.loads(json_string)
         return cls(
@@ -62,8 +64,10 @@ class Config:
     def from_app_json_file(cls, json_file: str) -> Config:
         """
         Create a Config object from a JSON file
+
         :param json_file: file name
-        :return: Config object
+
+        :returns: Config object
         """
         with open(json_file, encoding="ascii") as json_fh:
             return cls.from_app_json(json_fh.read())
@@ -72,6 +76,7 @@ class Config:
     def load_defaults(cls):
         """
         Load the default configuration file included with this module
-        :return: Config object
+
+        :returns: Config object
         """
         return cls.from_app_json_file(DEFAULT_CONFIG_JSON)

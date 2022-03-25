@@ -30,7 +30,7 @@ class CredentialsBase:
     def expiration_dt(self) -> datetime:
         """
         Return expiration as datetime object
-        :return: expiration datetime
+        :returns: expiration datetime
         """
         return datetime.fromtimestamp(self.expiration)
 
@@ -38,7 +38,7 @@ class CredentialsBase:
     def ttl(self) -> float:
         """
         Return time, in seconds, until expiration of current access and ID token
-        :return: time until expiration
+        :returns: time until expiration
         """
         ttl = self.expiration - datetime.now().timestamp()
         return 0 if ttl <= 0 else ttl
@@ -47,7 +47,7 @@ class CredentialsBase:
         """
         Save current credentials for future use to a JSON file
         :param filename: name and path for save file
-        :return: None
+        :returns: None
         """
         data = json.dumps(
             self,
@@ -81,7 +81,7 @@ class AWSCredentials(CredentialsBase):
         :param identity_pool_id:
         :param user_pool_id:
         :param id_token:
-        :return:
+        :returns:
         """
         logins = {
             f"cognito-idp.{region}.amazonaws.com/{region}_{user_pool_id}": id_token
@@ -132,7 +132,7 @@ class AppCredentials(CredentialsBase):
     def refresh(self, ttl_limit: int = 900, force: bool = False) -> None:
         """
         Use the refresh token to get new access and ID tokens
-        :return: None
+        :returns: None
         """
         if (self.ttl < ttl_limit) or force:
             idp_client = boto3.client(
@@ -165,7 +165,7 @@ class AppCredentials(CredentialsBase):
         Load credentials from a JSON file like that created by the save method above
         :param filename: name and path for file to load
         :param app_config: application configuration object
-        :return: Credentials object
+        :returns: Credentials object
         """
         with open(filename, encoding="ascii") as infile:
             raw_data = json.load(infile)

@@ -38,7 +38,7 @@ class Factor:
         """
         Pad a hexadecimal value as required by AWS Cognito SRP protocol.
         :param value: value to pad (if needed)
-        :return: padding compliant value
+        :returns: padding compliant value
         """
         if len(value) % 2 == 1:
             value = f"0{value}"

@@ -43,7 +43,7 @@ class RestClient:
         Internal method for lock/unlock calls with required data objects
         :param device: device object to interact with
         :param action: action to take on the device
-        :return: response body
+        :returns: response body
         """
         selector = f"/prod_v1/devices/{device.deviceid}/status"
         request = self._build_request(selector)
@@ -58,7 +58,7 @@ class RestClient:
         """
         Construct a urllib request with required headers, etc.
         :param selector: path / endpoint for the request
-        :return: Request object
+        :returns: Request object
         """
         request = urllib.request.Request(f"https://{self.config.host}{selector}")
         request.add_header(
@@ -73,7 +73,7 @@ class RestClient:
         provided type
         :param selector: API route to call
         :param model: Class type to convert for response
-        :return: Object of type model
+        :returns: Object of type model
         """
         with urllib.request.urlopen(self._build_request(selector)) as request:
             response_body = request.read()
@@ -85,7 +85,7 @@ class RestClient:
         """
         Get list of devices in a given Home
         :param home: Home to query
-        :return: List of Devices
+        :returns: List of Devices
         """
         selector = f"/prod_v1/homes/{home.homeid}/devices"
         return self._response_to_objects(selector, Device)
@@ -94,7 +94,7 @@ class RestClient:
         """
         Get details of a specific device
         :param device: Device to query
-        :return: Device details
+        :returns: Device details
         """
         selector = f"/prod_v1/devices/{device.deviceid}"
         return self._response_to_objects(selector, DeviceDetails)[0]
@@ -102,7 +102,7 @@ class RestClient:
     def get_my_homes(self) -> List[Home]:
         """
         Get list of Homes to which the current user is "attached"
-        :return: List of Homes
+        :returns: List of Homes
         """
         selector = "/prod_v1/users/me/homes"
         return self._response_to_objects(selector, Home)
@@ -110,7 +110,7 @@ class RestClient:
     def get_my_user(self) -> User:
         """
         Get information about the current user
-        :return: User details
+        :returns: User details
         """
         selector = "/prod_v1/users/me"
         return self._response_to_objects(selector, User)[0]
@@ -120,7 +120,7 @@ class RestClient:
         Get users with shared access to the specified home, assuming the current user
         is the "owner".
         :param home: Home to query
-        :return: List of users with shared access
+        :returns: List of users with shared access
         """
         selector = f"/prod_v1/homes/{home.homeid}/sharedusers"
         return self._response_to_objects(selector, SharedUser)
@@ -129,7 +129,7 @@ class RestClient:
         """
         Set a device's state to "locked"
         :param device: Device to lock
-        :return: Response body as a string (contains a count of affected devices)
+        :returns: Response body as a string (contains a count of affected devices)
         """
         return self._actuate_device(device, DeviceAction.LOCK)
 
@@ -137,6 +137,6 @@ class RestClient:
         """
         Set a device's state to "unlocked"
         :param device: Device to lock
-        :return: Response body as a string (contains a count of affected devices)
+        :returns: Response body as a string (contains a count of affected devices)
         """
         return self._actuate_device(device, DeviceAction.UNLOCK)

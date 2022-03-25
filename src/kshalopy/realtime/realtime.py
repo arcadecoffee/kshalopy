@@ -159,14 +159,14 @@ class RealtimeClient:
     def active(self) -> bool:
         """
         Return status of the realtime client
-        :return: Status of realtime client
+        :returns: Status of realtime client
         """
         return self.ws_app.keep_running
 
     def start(self) -> None:
         """
         Start the WebApp...this should almost always be done in a thread
-        :return: None
+        :returns: None
         """
         logger.info("Starting connection")
         self.ws_app.run_forever()
@@ -176,7 +176,7 @@ class RealtimeClient:
         Close the connection, blocks until connections have been closed cleanly unless
         force is set
         :param force: Do not wait for subscriptions to complete before disconnecting
-        :return: None
+        :returns: None
         """
         logger.info("Closing connection")
         for subscription_id in self._subscription_ids:
