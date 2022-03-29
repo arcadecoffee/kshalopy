@@ -1,0 +1,10 @@
+{
+  "host":"fake.execute-api.us-east-1.amazonaws.fake",
+  "port":443,
+  "useSSL":true,
+  "userpoolid":"us-east-1_fake_user_pool_id",
+  "userappclientid":"fake_client_id",
+  "identitypoolid":"fake_identity_pool_id",
+  "identityappclientsecret":"",
+  "appsyncapiurl": "https://fake.appsync-api.us-east-1.amazonaws.fake/graphql"
+}
