@@ -76,6 +76,11 @@ def main():
     signal.signal(signal.SIGINT, stop_daemons)
 
     while credential_daemon.is_running or realtime_daemon.is_running:
+        # You could make a whole interactive app and call things like:
+        # rest_client.lock_device(devices["SOME_DEVICE_ID"])
+        # or
+        # rest_client.unlock_device(devices["SOME_DEVICE_ID"])
+        # but as it is, this example just kind of watches the state of the lock
         pass
 
 
