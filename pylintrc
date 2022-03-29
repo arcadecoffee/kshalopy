@@ -1,0 +1,3 @@
+[SIMILARITIES]
+# Signatures are removed from the similarity computation
+ignore-signatures=yes
