@@ -1,4 +1,4 @@
-from kshalopy.realtime.daemon import RealtimeDaemon
+from src.kshalopy import RealtimeDaemon
 
 
 class MockRealtimeClient:

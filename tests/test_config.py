@@ -1,6 +1,6 @@
 import json
 
-from kshalopy.config import Config, DEFAULT_CONFIG_JSON
+from src.kshalopy.config import Config, DEFAULT_CONFIG_JSON
 
 with open(DEFAULT_CONFIG_JSON) as infile:
     raw_json = infile.read()

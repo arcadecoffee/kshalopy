@@ -1,12 +1,10 @@
 import time
 import tempfile
-import os
 
 from datetime import datetime
 from pathlib import Path
 
-from kshalopy.config import Config
-from kshalopy.credentials import AppCredentials, CredentialsDaemon
+from src.kshalopy import AppCredentials, Config, CredentialsDaemon
 
 
 TEST_CYCLE_TIME = 3
@@ -54,6 +52,7 @@ def test_credential_file_write():
     daemon.start()
     time.sleep(1)
     daemon.stop()
+    time.sleep(1)
     new_credentials = AppCredentials.load_credentials(test_file)
     assert TEST_CYCLE_TIME > test_credentials.ttl > 0
     assert new_credentials.expiration == test_credentials.expiration

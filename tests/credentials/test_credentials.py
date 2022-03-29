@@ -4,7 +4,7 @@ from datetime import datetime, timezone
 from io import TextIOBase
 from pathlib import Path
 
-from kshalopy import AppCredentials, Config
+from src.kshalopy import AppCredentials, Config
 
 test_path = str(Path.joinpath(Path(__file__).parent, "test_credentials.json"))
 test_path_partial = str(
@@ -107,6 +107,7 @@ class MockClient:
     ]
 
     def __init__(self, client_type, region_name):
+        self.call_count = -1
         assert client_type in ("cognito-idp", "cognito-identity")
         assert region_name
 
@@ -125,31 +126,25 @@ class MockClient:
 
 
 def test_refresh(monkeypatch):
-    class MyMockClient(MockClient):
-        pass
-
-    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    MockClient.call_count = -1
+    monkeypatch.setattr("src.kshalopy.login.login.boto3.client", MockClient)
     credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.refresh()
 
 
 def test_early_refresh(monkeypatch):
-    class MyMockClient(MockClient):
-        pass
-
-    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    MockClient.call_count = -1
+    monkeypatch.setattr("src.kshalopy.login.login.boto3.client", MockClient)
     credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.expiration = datetime.now().timestamp() + 1000
     credentials.refresh()
-    assert MyMockClient.call_count == -1
+    assert MockClient.call_count == -1
 
 
 def test_forced_refresh(monkeypatch):
-    class MyMockClient(MockClient):
-        pass
-
-    monkeypatch.setattr("kshalopy.login.login.boto3.client", MyMockClient)
+    MockClient.call_count = -1
+    monkeypatch.setattr("src.kshalopy.login.login.boto3.client", MockClient)
     credentials = AppCredentials.load_credentials(test_path, test_config)
     credentials.expiration = datetime.now().timestamp() + 1000
     credentials.refresh(force=True)
-    assert MyMockClient.call_count > -1
+    assert MockClient.call_count > -1

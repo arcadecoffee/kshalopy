@@ -1,7 +1,6 @@
 from datetime import datetime
 
-from kshalopy import Config
-from kshalopy.login import LoginHandler, LoginParameters, VerificationMethods
+from src.kshalopy import Config, LoginHandler, LoginParameters, VerificationMethods
 
 
 class MockClient:
@@ -161,9 +160,9 @@ class FakeDatetime:
 
 
 def fake_login_flow(monkeypatch, client_secret, mock_client):
-    monkeypatch.setattr("kshalopy.login.helper.urandom", lambda n: b"0" * n)
-    monkeypatch.setattr("kshalopy.login.login.boto3.client", mock_client)
-    monkeypatch.setattr("kshalopy.login.helper.datetime", FakeDatetime)
+    monkeypatch.setattr("src.kshalopy.login.helper.urandom", lambda n: b"0" * n)
+    monkeypatch.setattr("src.kshalopy.login.login.boto3.client", mock_client)
+    monkeypatch.setattr("src.kshalopy.login.helper.datetime", FakeDatetime)
 
     config = Config.load_defaults()
     config.__dict__.update(
@@ -190,18 +189,17 @@ def fake_login_flow(monkeypatch, client_secret, mock_client):
 
 
 def test_login_flow_with_secret(monkeypatch):
-    class MyMockClient(MockClient):
-        pass
-
-    with_secret = fake_login_flow(monkeypatch, True, MyMockClient)
+    MockClient.call_count = -1
+    with_secret = fake_login_flow(monkeypatch, True, MockClient)
     assert with_secret.access_token == "fake_access_token"
 
 
 def test_login_flow_without_secret(monkeypatch):
     class MyMockClient(MockClient):
-        pass
+        call_count = -1
 
     del MyMockClient.arg_sets[0]["AuthParameters"]["SECRET_HASH"]
     del MyMockClient.arg_sets[1]["ChallengeResponses"]["SECRET_HASH"]
+
     without_secret = fake_login_flow(monkeypatch, False, MyMockClient)
     assert without_secret.access_token == "fake_access_token"
